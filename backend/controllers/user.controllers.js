@@ -1,7 +1,7 @@
 const userModel = require('../models/user.model');
 const sendmail = require('../utils/nodemailer');
 const otpGenerator = require("otp-generator");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs")
 const getDataUri = require('../utils/datauri');
 const cloudinary = require("../utils/cloudinary");
 
