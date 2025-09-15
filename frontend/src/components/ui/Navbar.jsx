@@ -19,8 +19,7 @@ export const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const navigate = useNavigate();
 
-  console.log(user);
-  // Handle scroll effect
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -44,9 +43,10 @@ export const Navbar = () => {
     try {
       const response = await logoutUserApiCall();
       if (response.data.success) {
+        localStorage.clear();
         Cookies.remove("token");
         dispatch(logoutUser());
-        toast.success(response.data.message);
+        toast.success(response?.data.message);
         setIsOpen(false);
         setShowProfileDropdown(false);
         navigate('/');

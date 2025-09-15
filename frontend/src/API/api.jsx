@@ -1,8 +1,21 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL:import.meta.env.VITE_BASE_URL,
+  baseURL: import.meta.env.VITE_BASE_URL,
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = token;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 // "https://job-mortal-1.onrender.com"
 export const registerUserApiCall = (data) => {
   return api.post("/users/register", data);
@@ -24,9 +37,9 @@ export const forgetPasswordApiCall = (email) => {
   });
 };
 
-export const userResumeUploadApi=(resume)=>{
-  return api.post("users/profile/resume",resume,{withCredentials:true})
-}
+export const userResumeUploadApi = (resume) => {
+  return api.post("users/profile/resume", resume, { withCredentials: true });
+};
 
 export const verifyOtpApiCall = (data) => {
   return api.post("/users/password/verify", data);
@@ -103,8 +116,8 @@ export const updateJobApiCall = (id, data) => {
   return api.post(`job/updateJob/${id}`, data, { withCredentials: true });
 };
 
-export const applyJobApiCall = (id,data={}) => {
-  return api.post(`/applications/apply/${id}`,data,{ withCredentials: true });
+export const applyJobApiCall = (id, data = {}) => {
+  return api.post(`/applications/apply/${id}`, data, { withCredentials: true });
 };
 
 export const getAllApplicantApiCall = (id) => {
@@ -127,9 +140,8 @@ export const fetchOldNewJobs = async (sortOrder, limit) => {
   });
 };
 
-
 //send mail api
 
-export const contactUsApiCall=async(data)=>{
-return api.post(`/contactUs//sendandsave`,data,{withCredentials:true})
-}
+export const contactUsApiCall = async (data) => {
+  return api.post(`/contactUs//sendandsave`, data, { withCredentials: true });
+};

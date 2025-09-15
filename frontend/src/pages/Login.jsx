@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   FaEye,
   FaEyeSlash,
-  FaInfinity,
   FaEnvelope,
   FaLock,
   FaBriefcase,
@@ -22,8 +21,8 @@ import { useDispatch } from "react-redux";
 
 export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
- const navigate =useNavigate();
- const dispatch =useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   // React Hook Form with Zod validation
   const {
     register,
@@ -48,18 +47,19 @@ export const Login = () => {
   const onSubmit = async (data) => {
     try {
       const response = await loginUserApiCall(data);
-
-      if (response.data.success) {
-      const role=response.data.user.role;
+      if (response.data?.success) {
+         const token=`Bearer ${response.data.token}`;
+         localStorage.setItem("token",token)
+        const role = response.data.user.role;
         toast.success(response.data.message);
-        role==="recruiter"? navigate("/companies"):navigate("/");
+        role === "recruiter" ? navigate("/companies") : navigate("/");
         dispatch(setAuthenticate());
-        dispatch(setUser(response.data.user))
-
+        dispatch(setUser(response.data.user));
 
         reset();
       }
     } catch (error) {
+      console.log(error)
       toast.error(
         error.response?.data?.message || "Login failed. Please try again."
       );
@@ -100,8 +100,6 @@ export const Login = () => {
           {/* Decorative Background Elements */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-100 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-100 rounded-full translate-y-12 -translate-x-12 opacity-50"></div>
-
-        
 
           {/* Header */}
           <div className="text-center mb-8">
@@ -230,7 +228,7 @@ export const Login = () => {
               <button
                 type="button"
                 className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline transition-colors"
-                onClick={() =>navigate("/forget") }
+                onClick={() => navigate("/forget")}
               >
                 Forgot your password?
               </button>
