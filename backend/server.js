@@ -13,7 +13,7 @@ const cookieParser=require("cookie-parser");
 dotenv.config();
 
 const app=express();
-const server =http.createServer(app);
+// const server =http.createServer(app);
 
 //middleware
 app.use(cookieParser());
@@ -37,6 +37,6 @@ app.use("/company",companyRoutes)
 app.use("/applications",applicationRoutes)
 app.use("/contactUs",contactRouts)
 //Server start
-const PORT=process.env.PORT ||5000;
-// module.exports=app;
-server.listen(PORT,()=>console.log(`server is running at ${PORT}`));
+// const PORT=process.env.PORT ||5000;
+module.exports=app;
+// server.listen(PORT,()=>console.log(`server is running at ${PORT}`));
