@@ -9,6 +9,7 @@ import Spinner from "../components/ui/Spinner";
 export const UpdateCompanyProfile = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+
   useGetCompanyById(id);
   const { singleCompany } = useSelector((store) => store.company);
 
@@ -20,7 +21,8 @@ export const UpdateCompanyProfile = () => {
     logo: null,
   });
 
-  const [loading, setLoading] = useState(false); // Track loading state
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (singleCompany) {
@@ -31,6 +33,7 @@ export const UpdateCompanyProfile = () => {
         website: singleCompany.website || "",
         logo: null,
       });
+      setPreview(singleCompany.logo || null);
     }
   }, [singleCompany]);
 
@@ -40,12 +43,16 @@ export const UpdateCompanyProfile = () => {
   };
 
   const handleFileChange = (e) => {
-    setFormData((prev) => ({ ...prev, logo: e.target.files[0] }));
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, logo: file }));
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
+    setLoading(true);
 
     try {
       const response = await updateCompanyProfileApi(formData, id);
@@ -54,103 +61,121 @@ export const UpdateCompanyProfile = () => {
         navigate("/companies");
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
+      toast.error(
+        error.response?.data?.message || "Something went wrong. Try again."
+      );
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
   return (
-    <section className="h-screen flex justify-center">
-      <div className="bg-white p-6 mt-4">
-        {/* Back Button */}
-        <button onClick={() => navigate(-1)} className="text-blue-600 hover:underline mb-4">
-          &larr; Back
+    <section className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-2xl rounded-xl bg-white p-8 shadow-lg">
+        {/* Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 text-sm text-blue-600 hover:underline"
+        >
+          ← Back
         </button>
 
-        <h1 className="text-2xl font-semibold text-center mb-4">Update Company</h1>
+        <h1 className="mb-6 text-center text-2xl font-semibold">
+          Update Company Profile
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Company Name & Location (Same Row) */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-medium">Company Name</label>
-              <input
-                type="text"
-                name="companyName"
-                value={formData.companyName}
-                onChange={handleChange}
-                placeholder="Enter company name"
-                className="w-full p-2 border-none-rounded-lg bg-gray-100 focus:outline-blue-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block font-medium">Location</label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="Enter company location"
-                className="w-full p-2 border-none bg-gray-100 focus:outline-blue-500"
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Company Name & Location */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Input
+              label="Company Name"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleChange}
+              placeholder="Enter company name"
+            />
+            <Input
+              label="Location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="Enter location"
+            />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block font-medium">Description</label>
+            <label className="mb-1 block text-sm font-medium">
+              Description
+            </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Enter company description"
-              className="w-full p-2 border-none  bg-gray-100 focus:outline-blue-500"
-              rows="3"
+              rows={4}
+              placeholder="Company description"
+              className="w-full rounded-md bg-gray-100 px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
               required
-            ></textarea>
+            />
           </div>
 
-          {/* Website & Logo Upload (Same Row) */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-medium">Website</label>
-              <input
-                type="text"
-                name="website"
-                value={formData.website}
-                onChange={handleChange}
-                placeholder="Enter company website"
-                className="w-full p-2 border-none  bg-gray-100 focus:outline-blue-500"
-                required
-              />
-            </div>
+          {/* Website & Logo */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Input
+              label="Website"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              placeholder="https://company.com"
+            />
 
             <div>
-              <label className="block font-medium">Company Logo</label>
+              <label className="mb-1 block text-sm font-medium">
+                Company Logo
+              </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                className="w-full p-2 border-none bg-gray-100 focus:outline-blue-500"
+                className="w-full rounded-md bg-gray-100 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
           </div>
 
-          {/* Submit Button with Spinner */}
+          {/* Logo Preview */}
+          {preview && (
+            <div className="flex justify-center">
+              <img
+                src={preview}
+                alt="Company Logo Preview"
+                className="h-20 w-20 rounded-full object-cover border"
+              />
+            </div>
+          )}
+
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 cursor-pointer flex items-center justify-center gap-2"
-            disabled={loading} // Disable button while loading
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 py-2.5 text-white font-medium
+                       hover:bg-blue-500 transition disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {loading ? <Spinner /> : "Update"}
+            {loading ? <Spinner /> : "Update Company"}
           </button>
         </form>
       </div>
     </section>
   );
 };
+
+/* ---------- Reusable Input ---------- */
+const Input = ({ label, ...props }) => (
+  <div>
+    <label className="mb-1 block text-sm font-medium">{label}</label>
+    <input
+      {...props}
+      className="w-full rounded-md bg-gray-100 px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+      required
+    />
+  </div>
+);

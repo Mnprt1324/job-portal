@@ -7,6 +7,7 @@ import Spinner from "../ui/Spinner";
 
 export const ContactForm = () => {
   const { user } = useSelector((store) => store.auth);
+
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -14,7 +15,7 @@ export const ContactForm = () => {
     message: "",
   });
 
-  const [loading, setLoading] = useState(false); // 🔹 Loading state
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +23,8 @@ export const ContactForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // 🔹 Start loading
+    setLoading(true);
+
     try {
       const response = await contactUsApiCall(formData);
       if (response.data.success) {
@@ -39,83 +41,92 @@ export const ContactForm = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong!");
     } finally {
-      setLoading(false); // 🔹 Stop loading
+      setLoading(false);
     }
   };
 
   return (
-    <section className="flex flex-col justify-center w-full items-center md:flex-row md:gap-10 my-10 px-4">
-      {/* Contact Info Box */}
-      <div className="flex flex-col border-1 border-blue-500 h-auto justify-between p-6 rounded-lg shadow-lg w-full md:h-[30rem] md:w-[300px]">
-        <div className="text-center">
-          <FaMapMarkerAlt className="text-2xl text-blue-500 mb-2 mx-auto" />
-          <h2 className="text-xl font-semibold">Location</h2>
-          <p className="text-gray-700 mt-2">
-            329 Queensberry Street, North Melbourne VIC 3051, Australia.
-          </p>
-        </div>
-        <div className="text-center">
-          <FaPhoneAlt className="text-2xl text-blue-500 mb-2 mx-auto" />
-          <h2 className="text-xl font-semibold">Phone No</h2>
-          <p className="text-gray-700 mt-2">123-456-7890</p>
-        </div>
-        <div className="text-center">
-          <FaEnvelope className="text-2xl text-blue-500 mb-2 mx-auto" />
-          <h2 className="text-xl font-semibold">Email</h2>
-          <p className="text-gray-700 mt-2">zipJobcustomer1345@gmail.com</p>
-        </div>
+    <section className="mx-auto my-12 flex max-w-6xl flex-col gap-10 px-4 md:flex-row">
+      {/* Contact Info */}
+      <div className="flex w-full flex-col justify-between rounded-xl border border-blue-500 bg-white p-6 shadow-md md:w-72">
+        {[
+          {
+            icon: <FaMapMarkerAlt />,
+            title: "Location",
+            text: "329 Queensberry Street, North Melbourne VIC 3051, Australia.",
+          },
+          {
+            icon: <FaPhoneAlt />,
+            title: "Phone",
+            text: "123-456-7890",
+          },
+          {
+            icon: <FaEnvelope />,
+            title: "Email",
+            text: "zipJobcustomer1345@gmail.com",
+          },
+        ].map((item, index) => (
+          <div key={index} className="text-center">
+            <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+              {item.icon}
+            </div>
+            <h2 className="text-lg font-semibold">{item.title}</h2>
+            <p className="mt-2 text-sm text-gray-600">{item.text}</p>
+          </div>
+        ))}
       </div>
 
       {/* Contact Form */}
       <form
-        className="bg-white md:border md:border-blue-500 rounded-lg shadow-lg w-full md:w-[40rem] px-7 py-6"
         onSubmit={handleSubmit}
+        className="w-full rounded-xl border border-blue-500 bg-white px-8 py-7 shadow-md md:w-[42rem]"
       >
-        <div className="flex mb-6">
-          <FaEnvelope className="text-blue-500 text-xl mt-1" />
-          <p className="text-xl font-bold ml-2">Contact Us</p>
+        <div className="mb-6 flex items-center gap-2">
+          <FaEnvelope className="text-xl text-blue-600" />
+          <h2 className="text-xl font-bold">Contact Us</h2>
         </div>
 
-        <h1 className="text-xl font-medium">Get in Touch</h1>
-        <p className="text-slate-400 text-sm mb-4">
-          Fill out the form below and we'll get back to you soon.
+        <p className="mb-6 text-sm text-gray-500">
+          Fill out the form below and we’ll get back to you soon.
         </p>
 
-        {/* Name */}
-        <div className="flex flex-col">
-          <label>
-            Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Enter your name"
-            className="bg-slate-100 h-10 w-full focus:outline-blue-500 mb-4 px-3.5"
-            required
-          />
-        </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          {/* Name */}
+          <div className="flex flex-col">
+            <label className="mb-1 text-sm font-medium">
+              Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Your name"
+              className="rounded-md bg-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        {/* Email */}
-        <div className="flex flex-col">
-          <label>
-            Email <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Enter your email"
-            className="bg-slate-100 h-10 w-full focus:outline-blue-500 mb-4 px-3.5"
-            required
-          />
+          {/* Email */}
+          <div className="flex flex-col">
+            <label className="mb-1 text-sm font-medium">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Your email"
+              className="rounded-md bg-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
         </div>
 
         {/* Subject */}
-        <div className="flex flex-col">
-          <label>
+        <div className="mt-5 flex flex-col">
+          <label className="mb-1 text-sm font-medium">
             Subject <span className="text-red-500">*</span>
           </label>
           <input
@@ -123,32 +134,34 @@ export const ContactForm = () => {
             name="subject"
             value={formData.subject}
             onChange={handleChange}
-            placeholder="Enter subject"
-            className="bg-slate-100 h-10 w-full focus:outline-blue-500 mb-4 px-3.5"
+            placeholder="Subject"
+            className="rounded-md bg-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
         {/* Message */}
-        <div className="flex flex-col">
-          <label>
+        <div className="mt-5 flex flex-col">
+          <label className="mb-1 text-sm font-medium">
             Message <span className="text-red-500">*</span>
           </label>
           <textarea
             name="message"
             value={formData.message}
             onChange={handleChange}
-            placeholder="Enter your message"
-            className="bg-slate-100 h-24 w-full focus:outline-blue-500 mb-4 px-3.5"
+            placeholder="Write your message..."
+            rows={4}
+            className="rounded-md bg-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
-          ></textarea>
+          />
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <button
           type="submit"
-          className="flex bg-blue-600 justify-center p-2 text-white w-full cursor-pointer hover:bg-blue-500 items-center mt-4"
-          disabled={loading} // 🔹 Disable button while loading
+          disabled={loading}
+          className="mt-6 flex w-full items-center justify-center rounded-md bg-blue-600 py-2.5 text-white font-medium
+                     hover:bg-blue-500 transition disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading ? <Spinner /> : "Send Message"}
         </button>
@@ -156,3 +169,4 @@ export const ContactForm = () => {
     </section>
   );
 };
+

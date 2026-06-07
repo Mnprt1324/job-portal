@@ -7,7 +7,6 @@ const cloudinary = require("../utils/cloudinary");
 
 module.exports.registerUser = async (req, res, next) => {
     const { name, email, password, role } = req.body;
-    console.log(req.body);
     if (!name || !email || !password || !role) {
         return res.status(404).json({ message: "something went wrong...", success: false })
     }

@@ -114,7 +114,7 @@ export const Profile = () => {
                 <Edit3 className="w-4 h-4" />
                 Edit Profile
               </button>
-              {user.profile?.resume ? (
+              {!user.profile?.resume ? (
                  <button onClick={handleDownload} className="flex items-center gap-2 px-6 py-3 border border-blue-300 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors">
                   <Download className="w-4 h-4" />
                   Download Resume

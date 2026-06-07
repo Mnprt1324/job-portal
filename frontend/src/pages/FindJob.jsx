@@ -36,16 +36,33 @@ export const FindJob = () => {
         <FilterSidebar selectedFilter={selectedFilter} setSelectedFilter={setSelectedFilter} />
 
         <div className="flex flex-col w-full">
-          <div className="flex justify-end p-2">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2  bg-blue-100 border-none rounded focus:outline-blue-500"
-            >
-              <option value="new">Newest First</option>
-              <option value="old">Oldest First</option>
-            </select>
-          </div>
+        <div className="flex justify-end p-4">
+  <div className="relative w-48">
+    <select
+      value={sortBy}
+      onChange={(e) => setSortBy(e.target.value)}
+      className="w-full appearance-none rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-900 shadow-sm
+                 border border-blue-200
+                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                 hover:bg-blue-100 transition"
+    >
+      <option value="new">Newest First</option>
+      <option value="old">Oldest First</option>
+    </select>
+
+    {/* Dropdown Icon */}
+    <svg
+      className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+</div>
+
 
           {/* Apply Motion to Job Listings */}
           <motion.div
