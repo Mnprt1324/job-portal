@@ -10,7 +10,7 @@ export const loginSchema = z.object({
     .string()
     .min(1, "Password is required")
     .min(6, "Password must be at least 6 characters"),
-  role: z.enum(["jobseeker", "recruiter"], {
+  role: z.enum(["jobseeker", "recruiter", "company"], {
     required_error: "Please select your role",
     invalid_type_error: "Please select a valid role",
   }),
@@ -30,7 +30,7 @@ export const registerSchema = z.object({
     .regex(/\d/, "Must include one number")
     .regex(/[!@#$%^&*(),.?":{}|<>]/, "Must include one special character"),
   confirmPassword: z.string(),
-  role: z.enum(["jobseeker", "recruiter"]),
+  role: z.enum(["jobseeker", "recruiter", "company"]),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],

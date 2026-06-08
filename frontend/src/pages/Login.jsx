@@ -6,6 +6,7 @@ import {
   FaLock,
   FaBriefcase,
   FaUserTie,
+  FaBuilding,
   FaSpinner,
 } from "react-icons/fa";
 import { useForm } from "react-hook-form";
@@ -52,7 +53,13 @@ export const Login = () => {
          localStorage.setItem("token",token)
         const role = response.data.user.role;
         toast.success(response.data.message);
-        role === "recruiter" ? navigate("/companies") : navigate("/");
+        if (role === "recruiter") {
+          navigate("/dashboard");
+        } else if (role === "company") {
+          navigate("/company/dashboard");
+        } else {
+          navigate("/");
+        }
         dispatch(setAuthenticate());
         dispatch(setUser(response.data.user));
 
@@ -94,7 +101,7 @@ export const Login = () => {
 
   return (
     <section className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-lg">
         {/* Main Login Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 relative overflow-hidden">
           {/* Decorative Background Elements */}
@@ -239,7 +246,7 @@ export const Login = () => {
               <label className="block text-sm font-medium text-gray-700">
                 I am signing in as <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <label
                   className={`cursor-pointer p-4 border-2 rounded-lg transition-all duration-200 hover:shadow-md ${
                     watchedValues.role === "jobseeker"
@@ -287,6 +294,31 @@ export const Login = () => {
                       }`}
                     />
                     <span className="font-medium text-sm">Recruiter</span>
+                  </div>
+                </label>
+
+                <label
+                  className={`cursor-pointer p-4 border-2 rounded-lg transition-all duration-200 hover:shadow-md ${
+                    watchedValues.role === "company"
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    value="company"
+                    {...register("role")}
+                    className="sr-only"
+                  />
+                  <div className="text-center">
+                    <FaBuilding
+                      className={`mx-auto mb-2 text-xl ${
+                        watchedValues.role === "company"
+                          ? "text-blue-600"
+                          : "text-gray-400"
+                      }`}
+                    />
+                    <span className="font-medium text-sm">Company</span>
                   </div>
                 </label>
               </div>

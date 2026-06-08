@@ -22,11 +22,17 @@ import { Home } from "./pages/Home";
 import { Contact } from "./pages/Contact";
 import { UpdateJob } from "./pages/UpdateJob";
 import { Applicants } from "./pages/Applicants";
+import { RecruiterDashboard } from "./pages/RecruiterDashboard";
+import { CompanyDashboard } from "./pages/company/CompanyDashboard";
+import { CompanyBlankPage } from "./pages/company/CompanyBlankPage";
+import { CompanyProfile } from "./components/company/CompanyProfile";
+import { CompanyJobs } from "./components/company/jobs/jobs";
 import { PopularJobs } from "./components/home/PopularJobs";
 import { NewJobs } from "./components/home/NewJobs";
 import { OldJobs } from "./components/home/OldJobs";
 import PrivateRoute from "./utils/PrivateRoute";
 import { RoleBasedRoute } from "./utils/RoleBasedRoute";
+import { CompanyRoute } from "./utils/CompanyRoute";
 import { Super } from "./utils/Super";
 
 export const App = () => {
@@ -84,6 +90,7 @@ export const App = () => {
         {
           element: <RoleBasedRoute />, 
           children: [
+            { path: "dashboard", element: <RecruiterDashboard /> },
             { path: "companies", element: <Companies /> },
             { path: "companies/create", element: <CreateCompany /> },
             { path: "companies/update/profile/:id", element: <UpdateCompanyProfile /> },
@@ -91,6 +98,17 @@ export const App = () => {
             { path: "jobs", element: <Job /> },
             { path: "jobs/update/:id", element: <UpdateJob /> },
             { path: "jobs/applicants/:id", element: <Applicants /> },
+          ],
+        },
+        {
+          element: <CompanyRoute />,
+          children: [
+            { path: "company/dashboard", element: <CompanyDashboard /> },
+            { path: "company/jobs", element: <CompanyJobs /> },
+            { path: "company/interviews", element: <CompanyBlankPage /> },
+            { path: "company/profile", element: <CompanyProfile /> },
+            { path: "company/account", element: <CompanyBlankPage /> },
+            { path: "company/settings", element: <CompanyBlankPage /> },
           ],
         },
       ],

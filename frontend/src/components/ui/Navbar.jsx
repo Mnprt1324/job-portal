@@ -1,4 +1,4 @@
-import { FaInfinity, FaUser, FaBriefcase, FaBuilding } from "react-icons/fa";
+import { FaInfinity } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logoutUserApiCall } from "../../API/api";
 import { toast } from "react-toastify";
@@ -64,11 +64,8 @@ export const Navbar = () => {
 
   // Navigation items for different user roles
   const getNavigationItems = () => {
-    if (user?.role === "recruiter") {
-      return [
-        { path: "/companies", label: "Companies", icon: <FaBuilding className="w-4 h-4" /> },
-        { path: "/jobs", label: "Jobs", icon: <FaBriefcase className="w-4 h-4" /> }
-      ];
+    if (["recruiter", "company"].includes(user?.role)) {
+      return [];
     }
     return [
       { path: "/", label: "Home", icon: <IoHome className="w-4 h-4" /> },

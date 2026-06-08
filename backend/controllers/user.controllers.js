@@ -7,8 +7,12 @@ const cloudinary = require("../utils/cloudinary");
 
 module.exports.registerUser = async (req, res, next) => {
     const { name, email, password, role } = req.body;
+    const allowedRoles = ["jobseeker", "recruiter", "company"];
     if (!name || !email || !password || !role) {
         return res.status(404).json({ message: "something went wrong...", success: false })
+    }
+    if (!allowedRoles.includes(role)) {
+        return res.status(400).json({ message: "Invalid user role", success: false });
     }
     const isUesrAlreadyExist = await userModel.findOne({ email });
     //if  user already exits

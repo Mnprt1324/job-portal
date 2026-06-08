@@ -16,12 +16,13 @@ import {
   Grid,
   EllipsisVertical,
 } from "lucide-react";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import useGetAllAdminJobs from "../hooks/useGetAllAdminJobs";
 import { MenuButton } from "../components/ui/MenuButton";
 
 export const Job = () => {
   useGetAllAdminJobs();
+  const menuRef = useRef(null);
   const [activeMenu, setActiveMenu] = useState(null);
   const [filterValue, setFilterValue] = useState("");
   const { allAdminJobs } = useSelector((store) => store.job);
@@ -159,8 +160,8 @@ export const Job = () => {
   }
 
   return (
-    <section className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto">
+    <section>
+      <div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
             <div>

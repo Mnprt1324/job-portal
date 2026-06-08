@@ -1,0 +1,209 @@
+Project Overview
+================
+
+This project is a full-stack Job Portal application named ZipJob. It is built with a React/Vite frontend and an Express/MongoDB backend. The platform supports three main user roles: jobseekers, recruiters, and company users.
+
+Jobseekers can register, log in, browse jobs, search and filter job listings, view job details, apply for jobs, manage their profile, upload a resume, and track their submitted applications. Recruiters can register companies, manage company profiles, create and update job posts, view jobs they created, review applicants, and update application statuses. Company users can register and log in through a separate company route area.
+
+Tech Stack
+==========
+
+Frontend:
+- React 19 with Vite
+- React Router for page routing
+- Redux Toolkit and Redux Persist for state management
+- Axios for API calls
+- Tailwind CSS for styling
+- React Hook Form and Zod for form handling and validation
+- React Toastify for notifications
+- Framer Motion and icon libraries for UI enhancements
+
+Backend:
+- Node.js and Express
+- MongoDB with Mongoose
+- JWT authentication
+- bcryptjs for password hashing
+- Multer, DataURI, and Cloudinary for profile image, company logo, and resume uploads
+- Nodemailer and OTP generation for password reset and contact email handling
+- Cookie parser and CORS configuration
+
+Main Features
+=============
+
+Authentication and User Accounts:
+- User registration with role selection: jobseeker, recruiter, or company.
+- Login with email, password, and role validation.
+- Logout support.
+- JWT-based protected backend routes.
+- Private frontend routes for authenticated users.
+- Role-based frontend routes for recruiter-only pages.
+- Separate protected company routes for company accounts.
+
+Password Recovery:
+- Forgot password flow.
+- OTP generation and email delivery.
+- OTP verification.
+- Password update after verification.
+
+Jobseeker Features:
+- Browse public job listings.
+- Search jobs by keyword across title, description, location, and job type.
+- Sort jobs by newest or oldest.
+- Paginated job listing API.
+- View job detail pages.
+- Apply for jobs.
+- Prevent duplicate applications to the same job.
+- View applied jobs in profile/application sections.
+- Manage profile details including bio, phone, location, skills, website, and GitHub.
+- Upload profile image.
+- Upload resume.
+
+Recruiter Features:
+- Register a company.
+- View companies created by the logged-in recruiter.
+- View a single company profile.
+- Update company profile with name, description, website, location, and logo.
+- Create job posts for registered companies.
+- View jobs created by the recruiter.
+- Update existing job posts.
+- View applicants for a job.
+- Update applicant status to pending, accepted, or rejected.
+
+Company User Features:
+- Register and log in with the company role.
+- Redirect to the separate /company/dashboard route after login.
+- Current company dashboard page is intentionally blank and ready for future company-specific features.
+
+Company Features:
+- Company creation linked to recruiter account.
+- Company profile data includes company name, description, website, location, and logo.
+- Company data is connected to job posts.
+
+Job Features:
+- Job fields include title, company, location, salary, requirements, description, and job type.
+- Jobs are linked to the recruiter who posted them.
+- Jobs store references to received applications.
+- Public job listing endpoint supports keyword search, sorting, pagination, and company population.
+
+Application Features:
+- Job applications connect a job and an applicant.
+- Application status supports pending, accepted, and rejected.
+- Recruiters can fetch applicants for a job.
+- Jobseekers can fetch their own applied jobs with basic company information.
+
+Contact Feature:
+- Contact form stores messages in MongoDB.
+- Contact messages include name, email, subject, and message.
+- Backend sends contact form details to the configured admin email using Nodemailer.
+
+Frontend Pages and Routes
+=========================
+
+Public pages:
+- / : Home page with popular, new, and old jobs sections.
+- /findJob : Job discovery page.
+- /about : About page.
+- /contact : Contact page.
+- /register : User registration.
+- /login : User login.
+- /forget : Forgot password page.
+
+Password reset pages:
+- /verify/password : OTP verification.
+- /update/password : Password update.
+
+Protected jobseeker pages:
+- /job/apply/:id : Apply/view job application flow.
+- /profile : User profile.
+- /extra : Profile update page.
+
+Recruiter-only pages:
+- /companies : Recruiter's companies.
+- /companies/create : Create company.
+- /companies/update/profile/:id : Update company profile.
+- /job/create : Create job.
+- /jobs : Recruiter's job list.
+- /jobs/update/:id : Update job.
+- /jobs/applicants/:id : View applicants for a job.
+
+Backend API Routes
+==================
+
+User routes under /users:
+- POST /users/register
+- POST /users/login
+- POST /users/logout
+- POST /users/password/forget
+- POST /users/password/verify
+- POST /users/password/update
+- POST /users/profile/update
+- POST /users/profile/resume
+
+Job routes under /job:
+- POST /job/createJob
+- GET /job/getAllJobs
+- GET /job/getAllrecJob
+- GET /job/getJob/:id
+- POST /job/updateJob/:id
+
+Company routes under /company:
+- POST /company/register
+- POST /company/get
+- POST /company/get/:id
+- POST /company/update/:id
+
+Application routes under /applications:
+- POST /applications/apply/:id
+- GET /applications/getAppliedJob
+- GET /applications/:id/applicants
+- POST /applications/status/:id/applicants
+
+Contact route:
+- POST /contactUs/sendandsave
+
+Data Models
+===========
+
+User:
+- name, email, password, role
+- profile image, bio, phone, location, skills, experience, website, GitHub, resume
+- applied jobs
+- OTP and OTP expiry for password recovery
+
+Company:
+- company name, description, website, location, logo
+- createdByUserId linked to recruiter
+
+Job:
+- title, company, location, salary, requirements, description, job type
+- postedBy recruiter
+- applicants list
+
+Application:
+- job reference
+- applicant reference
+- status: pending, accepted, rejected
+
+Contact:
+- name, email, subject, message
+
+How To Run
+==========
+
+From the project root, the combined development command is:
+
+npm run dev
+
+This uses concurrently to start both:
+- frontend development server with Vite
+- backend development server with nodemon
+
+Environment Notes
+=================
+
+The backend expects environment variables for:
+- MongoDB connection
+- JWT secret
+- frontend URL for CORS
+- Cloudinary credentials
+- email credentials for Nodemailer and OTP/contact email flows

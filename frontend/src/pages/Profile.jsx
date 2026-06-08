@@ -28,6 +28,12 @@ export const Profile = () => {
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const user = useSelector((store) => store.auth.user);
+  const roleLabel =
+    user?.role === "jobseeker"
+      ? "Job Seeker"
+      : user?.role === "company"
+      ? "Company"
+      : "Recruiter";
   console.log(user);
 
    const handleDownload = () => {
@@ -73,7 +79,7 @@ export const Profile = () => {
                 </h1>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-500 text-white">
                   <User className="w-4 h-4 mr-1" />
-                  {user?.role === "jobseeker" ? "Job Seeker" : "Recruiter"}
+                  {roleLabel}
                 </span>
               </div>
 

@@ -46,22 +46,21 @@ module.exports.updateCompanyProfile=async (req,res)=>{
   try {
     let {id}=req.params;
     const {companyName,description,website,location}=req.body;
-    // console.log(websiteUrl);
-    if (!req.file) {
-      return res.status(400).json({ success: false, message: "No file uploaded" });
-    }
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid company ID" });
     }
 
-    const file = req.file;
-    const fileUri = getDataUri(file);
-    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-    const logo = cloudResponse.secure_url;
-   //logo url forn cloudnary;
-    const updateData={companyName,description,website,location,logo};
-    const company =await companyModel.findByIdAndUpdate(id,updateData);
+    const updateData={companyName,description,website,location};
+
+    if (req.file) {
+      const file = req.file;
+      const fileUri = getDataUri(file);
+      const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+      updateData.logo = cloudResponse.secure_url;
+    }
+
+    const company =await companyModel.findByIdAndUpdate(id,updateData,{new:true});
     if(!company) return res.status(404).json({message:"Company not found"});
     return res.status(200).json({company,message:"Company information updated",success:true});
   } catch (error) {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FaInfinity, FaEye, FaEyeSlash, FaTimes, FaUser, FaEnvelope, FaLock, FaBriefcase, FaUserTie } from "react-icons/fa";
+import { FaInfinity, FaEye, FaEyeSlash, FaTimes, FaUser, FaEnvelope, FaLock, FaBriefcase, FaUserTie, FaBuilding } from "react-icons/fa";
 import { registerUserApiCall } from "../API/api";
 import { toast } from "react-toastify";
 import { registerSchema } from "../validation/userValidation";
@@ -85,7 +85,7 @@ export const Register = () => {
 
   return (
     <section className="min-h-screen flex justify-center items-center py-12 px-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg">
         {/* Logo Section */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center">
@@ -231,7 +231,7 @@ export const Register = () => {
             <label className="block text-sm font-medium text-gray-700 mb-3">
               I am a <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <label
                 className={`cursor-pointer p-4 border-2 rounded-lg ${
                   watch("role") === "jobseeker"
@@ -275,6 +275,29 @@ export const Register = () => {
                     }`}
                   />
                   <span className="font-medium">Recruiter</span>
+                </div>
+              </label>
+
+              <label
+                className={`cursor-pointer p-4 border-2 rounded-lg ${
+                  watch("role") === "company"
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-gray-200 bg-white"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="company"
+                  {...register("role")}
+                  className="sr-only"
+                />
+                <div className="text-center">
+                  <FaBuilding
+                    className={`mx-auto mb-2 text-2xl ${
+                      watch("role") === "company" ? "text-blue-600" : "text-gray-400"
+                    }`}
+                  />
+                  <span className="font-medium">Company</span>
                 </div>
               </label>
             </div>

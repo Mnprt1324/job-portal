@@ -1,14 +1,34 @@
 const jobModel = require("../models/job.model");
 
+const canManageJobs = (user) => ["recruiter", "company"].includes(user?.role);
+
+const normalizeRequirements = (requirement) => {
+  if (Array.isArray(requirement)) {
+    return requirement.map((item) => String(item).trim()).filter(Boolean);
+  }
+
+  return String(requirement || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
 // controller for job creating  
 module.exports.createJob = async (req, res, next) => {
-  if (req.user.role !== "recruiter") return res.status(403).json({ message: "access denied" });
+  if (!canManageJobs(req.user)) {
+    return res.status(403).json({ message: "access denied" });
+  }
+
   const { title, company, location, salary, requirement, description, jobType } = req.body;
   if (!title || !company || !location || !salary || !requirement || !description || !jobType) {
     return res.status(400).json({ message: "all field must be required" });
   }
 
-  const requirementArray = requirement.split(",").map(item => item.trim())
+  const requirementArray = normalizeRequirements(requirement);
+  if (requirementArray.length === 0) {
+    return res.status(400).json({ message: "At least one requirement is required" });
+  }
+
   const jobObject = { title, company, location, salary, requirement: requirementArray, description, jobType, postedBy: req.user._id }
   try {
     const job = await jobModel.create(jobObject);
@@ -94,14 +114,22 @@ module.exports.recruiterJobCreated = async (req, res) => {
 
 module.exports.UpdateJob = async (req, res) => {
   try {
+    if (!canManageJobs(req.user)) {
+      return res.status(403).json({ message: "access denied" });
+    }
+
     const jobId = req.params.id
     const { title, company, location, salary, requirement, description, jobType } = req.body;
     console.log(title, company);
     if (!title || !company || !location || !salary || !requirement || !description || !jobType) {
       return res.status(400).json({ message: "all field must be required" });
     }
-    console.log(requirement);
-    const updateData = { title, company, location, salary, requirement, description, jobType };
+    const requirementArray = normalizeRequirements(requirement);
+    if (requirementArray.length === 0) {
+      return res.status(400).json({ message: "At least one requirement is required" });
+    }
+
+    const updateData = { title, company, location, salary, requirement: requirementArray, description, jobType };
     const updateJob = await jobModel.findByIdAndUpdate(jobId, updateData);
 
     return res.status(200).json({ updateJob, message: "Update scussfully", success: true });
