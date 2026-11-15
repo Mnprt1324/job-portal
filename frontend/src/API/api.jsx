@@ -63,7 +63,7 @@ export const checkAuth = () => {
 export const getAllJobs = (options = {}) => {
   const { keyword = "", page = 1, limit = 6, sortBy = "new" } = options;
   return api.get(
-    `job/getAllJobs?keyword=${keyword}&page=${page}&limit=${limit}&sortBy=${sortBy}`,
+    `job/getAllJobs?${new URLSearchParams({ keyword, page, limit, sortBy })}`,
     { withCredentials: true }
   );
 };
@@ -143,5 +143,5 @@ export const fetchOldNewJobs = async (sortOrder, limit) => {
 //send mail api
 
 export const contactUsApiCall = async (data) => {
-  return api.post(`/contactUs//sendandsave`, data, { withCredentials: true });
+  return api.post(`/contactUs/sendandsave`, data, { withCredentials: true });
 };

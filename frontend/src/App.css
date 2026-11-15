@@ -1,9 +1,1 @@
-
-li >a{
-    padding:.5rem 1rem; 
-    border-radius: 1.3rem;
-}
-
-input [type="checkbox"]{
-border-radius: 50px;
-}
+/* Shared navigation, forms, and cards use index.css design tokens. */

@@ -1,0 +1,73 @@
+﻿.recovery-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--color-blue-100);
+  border-radius: 14px;
+  background: var(--color-blue-50);
+  color: var(--p-action);
+  margin-bottom: 28px;
+}
+.recovery-form .auth-form-heading h1 {
+  font-size: clamp(30px, 2.7vw, 38px);
+}
+.recovery-form .auth-form-heading > p:last-child {
+  line-height: 1.8;
+}
+.recovery-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 14px;
+  color: var(--p-action);
+  margin-top: 24px;
+}
+.recovery-back:hover,
+.recovery-note a:hover,
+.recovery-email a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.recovery-note {
+  border-top: 1px solid var(--color-border);
+  padding-top: 20px;
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--p-muted);
+  line-height: 1.8;
+}
+.recovery-note a {
+  color: var(--p-action);
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+.recovery-email {
+  background: var(--p-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 0 0 24px;
+  color: var(--p-muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.recovery-email strong {
+  font-weight: 500;
+  color: var(--p-ink);
+}
+.recovery-email a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--p-action);
+  font-size: 13px;
+}
+#reset-code {
+  letter-spacing: 0.3em;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}

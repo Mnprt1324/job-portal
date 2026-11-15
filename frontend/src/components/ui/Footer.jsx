@@ -1,156 +1,87 @@
-import { FaFacebookSquare, FaInfinity, FaInstagramSquare, FaLinkedin } from "react-icons/fa";
+﻿import { Link } from "react-router-dom";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  Infinity as InfinityIcon,
+} from "lucide-react";
 
-export const Footer = () => {
-  const footerLinks = {
-    resources: [
-      { name: "About us", href: "#" },
-      { name: "Our Team", href: "#" },
-      { name: "Products", href: "#" },
-      { name: "Contact", href: "#" }
+const directories = [
+  {
+    title: "Find your next move",
+    links: [
+      ["Browse all jobs", "/findJob"],
+      ["Remote opportunities", "/findJob?keyword=Remote"],
+      ["Create your profile", "/register"],
     ],
-    community: [
-      { name: "Feature", href: "#" },
-      { name: "Pricing", href: "#" },
-      { name: "Credit", href: "#" },
-      { name: "FAQ", href: "#" }
+  },
+  {
+    title: "Your account",
+    links: [
+      ["Sign in", "/login"],
+      ["Join as a recruiter", "/register"],
+      ["Reset your password", "/forget"],
     ],
-    quickLinks: [
-      { name: "Jobs", href: "#" },
-      { name: "Companies", href: "#" },
-      { name: "Resume Builder", href: "#" },
-      { name: "Career Tips", href: "#" }
+  },
+  {
+    title: "Get to know ZipJob",
+    links: [
+      ["Our story", "/about"],
+      ["Contact us", "/contact"],
+      ["Common questions", "/#questions"],
     ],
-    more: [
-      { name: "Privacy Policy", href: "#" },
-      { name: "Terms of Service", href: "#" },
-      { name: "Help Center", href: "#" },
-      { name: "Support", href: "#" }
-    ]
-  };
+  },
+];
 
-  const socialLinks = [
-    { icon: FaInstagramSquare, href: "#", label: "Instagram" },
-    { icon: FaFacebookSquare, href: "#", label: "Facebook" },
-    { icon: FaLinkedin, href: "#", label: "LinkedIn" }
-  ];
-
-  return (
-    <footer className="bg-gradient-to-br from-slate-50 to-slate-100 border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          {/* Brand Section */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="flex items-center">
-              <FaInfinity className="text-blue-500 text-3xl" />
-              <span className="font-bold text-2xl text-slate-800 ml-2">ZipJob</span>
-            </div>
-            
-            <p className="text-slate-600 text-sm leading-relaxed max-w-sm">
-              ZipJob is a powerful job portal web app designed to bridge the gap between job seekers and recruiters. 
-              It offers an intuitive platform for discovering job opportunities, applying seamlessly, and managing applications efficiently.
-            </p>
-            
-            {/* Social Links */}
-            <div className="flex space-x-4">
-              {socialLinks.map(({ icon: Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="text-blue-500 hover:text-blue-600 transition-colors duration-200 transform hover:scale-110"
-                >
-                  <Icon className="text-2xl" />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Links Grid */}
-          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* Resources */}
-            <div>
-              <h3 className="font-semibold text-slate-800 mb-4">Resources</h3>
-              <ul className="space-y-3">
-                {footerLinks.resources.map((link) => (
-                  <li key={link.name}>
-                    <a 
-                      href={link.href}
-                      className="text-slate-600 hover:text-blue-600 text-sm transition-colors duration-200 hover:underline"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Community */}
-            <div>
-              <h3 className="font-semibold text-slate-800 mb-4">Community</h3>
-              <ul className="space-y-3">
-                {footerLinks.community.map((link) => (
-                  <li key={link.name}>
-                    <a 
-                      href={link.href}
-                      className="text-slate-600 hover:text-blue-600 text-sm transition-colors duration-200 hover:underline"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="font-semibold text-slate-800 mb-4">Quick Links</h3>
-              <ul className="space-y-3">
-                {footerLinks.quickLinks.map((link) => (
-                  <li key={link.name}>
-                    <a 
-                      href={link.href}
-                      className="text-slate-600 hover:text-blue-600 text-sm transition-colors duration-200 hover:underline"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* More */}
-            <div>
-              <h3 className="font-semibold text-slate-800 mb-4">Legal</h3>
-              <ul className="space-y-3">
-                {footerLinks.more.map((link) => (
-                  <li key={link.name}>
-                    <a 
-                      href={link.href}
-                      className="text-slate-600 hover:text-blue-600 text-sm transition-colors duration-200 hover:underline"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+export const Footer = () => (
+  <footer className="site-footer footer-redesign">
+    <div className="page-container">
+      <div className="footer-invitation">
+        <div>
+          <p className="eyebrow">There is a next chapter for everyone.</p>
+          <h2>Make yours a good one.</h2>
         </div>
-
-        {/* Bottom Section */}
-        <div className="mt-12 pt-8 border-t border-slate-200">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="flex items-center">
-              <FaInfinity className="text-blue-500 text-xl" />
-              <span className="font-semibold text-slate-700 ml-2">ZipJob</span>
-            </div>
-            
-            <p className="text-slate-500 text-sm">
-              © {new Date().getFullYear()} ZipJob. All rights reserved.
-            </p>
-          </div>
-        </div>
+        <Link className="btn-primary" to="/findJob">
+          Explore opportunities <ArrowUpRight size={19} aria-hidden="true" />
+        </Link>
       </div>
-    </footer>
-  );
-};
+      <div className="footer-directory">
+        <div className="footer-brand-column">
+          <Link to="/" className="footer-brand">
+            <InfinityIcon size={29} aria-hidden="true" />
+            ZipJob
+          </Link>
+          <p>
+            A place for people and teams
+            <br />
+            to find their next move.
+          </p>
+          <Link to="/about" className="footer-story-link">
+            A little about us <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
+        {directories.map((group) => (
+          <nav key={group.title} aria-label={group.title}>
+            <h3>{group.title}</h3>
+            {group.links.map(([label, to]) => (
+              <Link key={label} to={to}>
+                {label}
+              </Link>
+            ))}
+          </nav>
+        ))}
+      </div>
+      <div className="footer-wordmark" aria-hidden="true">
+        Good work.<span>New chapter.</span>
+      </div>
+      <div className="footer-bottom">
+        <span>
+          Copyright {new Date().getFullYear()} ZipJob. All rights reserved.
+        </span>
+        <span>Built around your next move.</span>
+        <a href="#main-content" className="footer-back-top">
+          Back to top <ArrowUpRight size={14} aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  </footer>
+);

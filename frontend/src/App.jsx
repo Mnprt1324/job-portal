@@ -1,4 +1,6 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { NotFound } from "./pages/NotFound";
+import { AuthLayout } from "./components/layout/AuthLayout";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { AppLayout } from "./components/layout/AppLayou"; // ✅ Fixed import
 import { About } from "./pages/About";
 import { FindJob } from "./pages/FindJob";
@@ -18,7 +20,10 @@ import { Job } from "./pages/Job";
 import { CreateCompany } from "./pages/CreateCompany";
 import { UpdateCompanyProfile } from "./pages/UpdateCompanyProfile";
 import { JobCreate } from "./pages/JobCreate";
-import { Home } from "./pages/Home";
+import { HomeEntry } from "./utils/HomeEntry";
+import { JobseekerLayout } from "./components/layout/JobseekerLayout";
+import { JobseekerDashboard } from "./pages/jobseeker/JobseekerDashboard";
+import { JobseekerApplications } from "./pages/jobseeker/JobseekerApplications";
 import { Contact } from "./pages/Contact";
 import { UpdateJob } from "./pages/UpdateJob";
 import { Applicants } from "./pages/Applicants";
@@ -37,13 +42,31 @@ import { Super } from "./utils/Super";
 
 export const App = () => {
   const router = createBrowserRouter([
+    { path: "*", element: <NotFound /> },
+    { path: "/jobseeker", element: <JobseekerLayout />, children: [
+      { index: true, element: <Navigate to="/jobseeker/dashboard" replace /> },
+      { path: "dashboard", element: <JobseekerDashboard /> },
+      { path: "applications", element: <JobseekerApplications /> },
+      { path: "jobs", element: <FindJob /> },
+      { path: "jobs/:id", element: <div className="js-job-detail-route"><JobApply /></div> },
+      { path: "profile", element: <div className="js-profile-route"><Profile /></div> },
+    ] },
+    { element: <AuthLayout />, children: [
+      { path: "/login", element: <Login /> },
+      { path: "/register", element: <Register /> },
+      { path: "/forget", element: <Forget /> },
+      { element: <Super />, children: [
+        { path: "/verify/password", element: <VerifyPass /> },
+        { path: "/update/password", element: <UpdatePass /> },
+      ] },
+    ] },
     {
       path: "/",
       element: <AppLayout />,
       children: [
         {
           path: "",
-          element: <Home />,
+          element: <HomeEntry />,
           children: [
             { path: "", element: <PopularJobs /> },
             { path: "jobs/new", element: <NewJobs /> },
@@ -53,16 +76,6 @@ export const App = () => {
         { path: "findJob", element: <FindJob /> },
         { path: "about", element: <About /> },
         { path: "contact", element: <Contact /> },
-        { path: "register", element: <Register /> },
-        { path: "login", element: <Login /> },
-        { path: "forget", element: <Forget /> },
-        {
-          element: <Super />,
-          children: [
-            { path: "update/password", element: <UpdatePass /> },
-            { path: "verify/password", element: <VerifyPass /> },
-          ],
-        },
         {
           path: "job/apply/:id",
           element: (

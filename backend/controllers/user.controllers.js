@@ -130,48 +130,42 @@ module.exports.updateUserPass = async (req, res) => {
 module.exports.updateUserProfile = async (req, res) => {
     try {
         const { name, email, bio, phone, location, skills, website, github } = req.body;
-
-        const file = req.file;
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { folder: "uploads", });
-
+        if (name !== undefined && !String(name).trim()) return res.status(400).json({ success: false, message: "Name is required." });
+        if (email !== undefined && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim())) return res.status(400).json({ success: false, message: "Enter a valid email address." });
         let skillArray;
-        if (skills) skillArray = skills.split(",");
-        const userId = req.user._id;
-        let user = await userModel.findById(userId);
-        if (!user) return res.status(400).json({ message: "User not found.", success: false });
-
-        if (name) user.name = name;
-        if (email) user.email = email;
-        if (bio) user.profile.bio = bio;
-        if (phone) user.profile.phone = phone;
-        if (location) user.profile.location = location;
-        if (skills) user.profile.skills = skillArray;
-        if (website) user.profile.website = website;
-        if (github) user.profile.github = github;
-
-        if (cloudResponse) {
-            user.profile.profileImg = cloudResponse.secure_url;
+        if (skills !== undefined) {
+            let values;
+            if (Array.isArray(skills)) values = skills;
+            else if (String(skills).trim().startsWith("[")) {
+                try { values = JSON.parse(skills); } catch { return res.status(400).json({ success: false, message: "Skills must be a list." }); }
+            } else values = String(skills).split(",");
+            if (!Array.isArray(values) || values.some(value => typeof value !== "string")) return res.status(400).json({ success: false, message: "Skills must be a list of text values." });
+            skillArray = [...new Set(values.map(value => value.trim()).filter(Boolean))];
         }
-
+        const user = await userModel.findById(req.user._id);
+        if (!user) return res.status(404).json({ success: false, message: "User not found." });
+        if (name !== undefined) user.name = String(name).trim();
+        if (email !== undefined) user.email = String(email).trim().toLowerCase();
+        if (bio !== undefined) user.profile.bio = bio;
+        if (phone !== undefined) user.profile.phone = phone;
+        if (location !== undefined) user.profile.location = location;
+        if (skillArray !== undefined) user.profile.skills = skillArray;
+        if (website !== undefined) user.profile.website = website;
+        if (github !== undefined) user.profile.github = github;
+        if (req.file) {
+            const fileUri = getDataUri(req.file);
+            const uploaded = await cloudinary.uploader.upload(fileUri.content, { folder: "uploads" });
+            if (!uploaded?.secure_url) throw new Error("Profile image upload failed");
+            user.profile.profileImg = uploaded.secure_url;
+        }
         await user.save();
-
-        user = {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            phoneNumber: user.phone,
-            role: user.role,
-            profile: user.profile
-        }
-
-        return res.status(200).json({ message: "Profile updated successfully.", user, success: true })
-
+        return res.status(200).json({ success: true, message: "Profile updated successfully.", user: { _id: user._id, name: user.name, email: user.email, role: user.role, profile: user.profile } });
     } catch (error) {
-        console.log("error:", error);
+        if (error.code === 11000) return res.status(409).json({ success: false, message: "That email address is already in use." });
+        console.error("Profile update failed:", error.message);
+        return res.status(500).json({ success: false, message: "We could not update your profile. Please try again." });
     }
-}
-
+};
 
 module.exports.auth = async (req, res) => {
     const token = req.cookies.token;
@@ -190,12 +184,11 @@ module.exports.resumeUpload = async (req, res) => {
         let user = await userModel.findById(userId);
         if (!user) return res.status(400).json({ message: "User not found.", success: false });
         const fileUri = getDataUri(resume);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { folder: "uploads/resume", });
-        if (cloudResponse) {
-            user.profile.resume = cloudResponse.secure_url;
-        }
+        const cloudResponse = await cloudinary.uploader.upload(fileUri.content, { folder: "uploads/resume", resource_type: "auto" });
+        if (!cloudResponse?.secure_url) return res.status(500).json({ success: false, message: "Resume upload failed. Please try again." });
+        user.profile.resume = cloudResponse.secure_url;
         await user.save();
-        res.status(200).json({ message: "resume upload" })
+        return res.status(200).json({ success: true, message: "Resume uploaded successfully.", user: { _id: user._id, name: user.name, email: user.email, role: user.role, profile: user.profile } });
     } catch (error) {
         console.log("resumeUpload error", error);
         return res.status(500).json({ message: "internal server error" })

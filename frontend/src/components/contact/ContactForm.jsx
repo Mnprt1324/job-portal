@@ -1,172 +1,306 @@
-import { useState } from "react";
-import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
+﻿import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod/v3";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  Send,
+  LoaderCircle,
+  Check,
+  AlertCircle,
+  KeyRound,
+  BriefcaseBusiness,
+  MessageSquare,
+} from "lucide-react";
 import { contactUsApiCall } from "../../API/api";
-import Spinner from "../ui/Spinner";
+import "./ContactForm.css";
+
+const schema = z.object({
+  name: z.string().trim().min(1, "Enter your name."),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Enter your email address.")
+    .email("Enter a valid email address."),
+  subject: z.string().trim().min(1, "Add a subject for your message."),
+  message: z.string().trim().min(1, "Tell us how we can help."),
+});
 
 export const ContactForm = () => {
   const { user } = useSelector((store) => store.auth);
-
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    subject: "",
-    message: "",
+  const [serverError, setServerError] = useState("");
+  const [sent, setSent] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      subject: "",
+      message: "",
+    },
   });
-
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const subject = watch("subject");
+  const submit = async (data) => {
+    setServerError("");
     try {
-      const response = await contactUsApiCall(formData);
-      if (response.data.success) {
-        toast.success(response.data.message);
-        setFormData({
-          name: user?.name || "",
-          email: user?.email || "",
-          subject: "",
-          message: "",
-        });
-      } else {
-        toast.error(response.message || "Failed to send message.");
+      const response = await contactUsApiCall(data);
+      if (!response.data?.success) {
+        setServerError(
+          response.data?.message ||
+            "We could not send your message. Please try again.",
+        );
+        return;
       }
+      reset({ name: data.name, email: data.email, subject: "", message: "" });
+      setSent(true);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong!");
-    } finally {
-      setLoading(false);
+      setServerError(
+        error.response?.data?.message ||
+          "Your message could not be sent. Your details are still here so you can try again.",
+      );
     }
   };
-
-  return (
-    <section className="mx-auto my-12 flex max-w-6xl flex-col gap-10 px-4 md:flex-row">
-      {/* Contact Info */}
-      <div className="flex w-full flex-col justify-between rounded-xl border border-blue-500 bg-white p-6 shadow-md md:w-72">
-        {[
-          {
-            icon: <FaMapMarkerAlt />,
-            title: "Location",
-            text: "329 Queensberry Street, North Melbourne VIC 3051, Australia.",
-          },
-          {
-            icon: <FaPhoneAlt />,
-            title: "Phone",
-            text: "123-456-7890",
-          },
-          {
-            icon: <FaEnvelope />,
-            title: "Email",
-            text: "zipJobcustomer1345@gmail.com",
-          },
-        ].map((item, index) => (
-          <div key={index} className="text-center">
-            <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-              {item.icon}
-            </div>
-            <h2 className="text-lg font-semibold">{item.title}</h2>
-            <p className="mt-2 text-sm text-gray-600">{item.text}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Contact Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="w-full rounded-xl border border-blue-500 bg-white px-8 py-7 shadow-md md:w-[42rem]"
-      >
-        <div className="mb-6 flex items-center gap-2">
-          <FaEnvelope className="text-xl text-blue-600" />
-          <h2 className="text-xl font-bold">Contact Us</h2>
-        </div>
-
-        <p className="mb-6 text-sm text-gray-500">
-          Fill out the form below and we’ll get back to you soon.
+  const input = (name, label, placeholder, type = "text") => (
+    <div className="contact-field">
+      <label htmlFor={`contact-${name}`}>{label}</label>
+      <input
+        id={`contact-${name}`}
+        type={type}
+        placeholder={placeholder}
+        autoComplete={
+          name === "name" ? "name" : name === "email" ? "email" : "off"
+        }
+        {...register(name)}
+        aria-invalid={!!errors[name]}
+        aria-describedby={errors[name] ? `contact-${name}-error` : undefined}
+      />
+      {errors[name] && (
+        <p className="contact-field-error" id={`contact-${name}-error`}>
+          {errors[name].message}
         </p>
-
-        <div className="grid gap-5 md:grid-cols-2">
-          {/* Name */}
-          <div className="flex flex-col">
-            <label className="mb-1 text-sm font-medium">
-              Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Your name"
-              className="rounded-md bg-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          {/* Email */}
-          <div className="flex flex-col">
-            <label className="mb-1 text-sm font-medium">
-              Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Your email"
-              className="rounded-md bg-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Subject */}
-        <div className="mt-5 flex flex-col">
-          <label className="mb-1 text-sm font-medium">
-            Subject <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-            placeholder="Subject"
-            className="rounded-md bg-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        {/* Message */}
-        <div className="mt-5 flex flex-col">
-          <label className="mb-1 text-sm font-medium">
-            Message <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Write your message..."
-            rows={4}
-            className="rounded-md bg-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-6 flex w-full items-center justify-center rounded-md bg-blue-600 py-2.5 text-white font-medium
-                     hover:bg-blue-500 transition disabled:cursor-not-allowed disabled:opacity-70"
+      )}
+    </div>
+  );
+  return (
+    <div className="contact-page page-container">
+      <section className="contact-intro">
+        <p className="eyebrow">Get in touch</p>
+        <h1>
+          A question. An idea.
+          <br />
+          <span>A place to start.</span>
+        </h1>
+        <p>
+          Whether you are looking for work or building a team, tell us what is
+          on your mind.
+        </p>
+      </section>
+      <div className="contact-layout">
+        <aside
+          className="contact-guidance"
+          aria-label="Contact and help options"
         >
-          {loading ? <Spinner /> : "Send Message"}
-        </button>
-      </form>
-    </section>
+          <div className="contact-guidance-heading">
+            <span className="contact-mail-icon">
+              <MessageSquare size={24} aria-hidden="true" />
+            </span>
+            <h2>We are listening.</h2>
+            <p>
+              Need help with your account, a job listing, or an application?
+              Send a message with a few details so we can understand what you
+              need.
+            </p>
+          </div>
+          <div className="contact-help-links">
+            <p className="eyebrow">A useful place to look first</p>
+            {[
+              [
+                KeyRound,
+                "Trouble signing in?",
+                "Reset your password",
+                "/forget",
+              ],
+              [
+                BriefcaseBusiness,
+                "Looking for your next role?",
+                "Explore opportunities",
+                "/findJob",
+              ],
+              [
+                MessageSquare,
+                "A quick question?",
+                "Read common questions",
+                "/#questions",
+              ],
+            ].map(([Icon, title, label, to]) => (
+              <Link key={to} to={to}>
+                <Icon size={20} aria-hidden="true" />
+                <span>
+                  <strong>{title}</strong>
+                  <span>{label}</span>
+                </span>
+                <ArrowUpRight size={17} aria-hidden="true" />
+              </Link>
+            ))}
+          </div>
+          <p className="contact-privacy-note">
+            Please leave out passwords, verification codes, and other sensitive
+            account details.
+          </p>
+        </aside>
+        <section
+          className="contact-form-panel"
+          aria-labelledby="contact-form-title"
+        >
+          {sent ? (
+            <div className="contact-success" role="status">
+              <span className="contact-success-icon">
+                <Check size={28} aria-hidden="true" />
+              </span>
+              <p className="eyebrow">Message sent</p>
+              <h2 id="contact-form-title">Thanks for reaching out.</h2>
+              <p>
+                Your message has been sent to the ZipJob team. You can continue
+                exploring while you wait for a reply.
+              </p>
+              <button
+                className="btn-primary"
+                type="button"
+                onClick={() => setSent(false)}
+              >
+                Send another message
+                <ArrowRight size={18} aria-hidden="true" />
+              </button>
+              <Link to="/findJob" className="text-link">
+                Explore jobs
+                <ArrowUpRight size={17} aria-hidden="true" />
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="contact-form-heading">
+                <p className="eyebrow">A direct line to ZipJob</p>
+                <h2 id="contact-form-title">Send us a message.</h2>
+                <p>All fields are required. We will use your email to reply.</p>
+              </div>
+              <form
+                onSubmit={handleSubmit(submit)}
+                noValidate
+                aria-busy={isSubmitting}
+              >
+                <fieldset className="contact-controls" disabled={isSubmitting}>
+                  <div className="contact-name-email">
+                    {input("name", "Your name", "Your full name")}
+                    {input(
+                      "email",
+                      "Email address",
+                      "you@example.com",
+                      "email",
+                    )}
+                  </div>
+                  <div className="contact-topics">
+                    <span>What is it about?</span>
+                    <div>
+                      {[
+                        "Account access",
+                        "Job applications",
+                        "Recruiter support",
+                      ].map((topic) => (
+                        <button
+                          key={topic}
+                          type="button"
+                          aria-pressed={subject === topic}
+                          onClick={() =>
+                            setValue("subject", topic, {
+                              shouldDirty: true,
+                              shouldValidate: !!errors.subject,
+                            })
+                          }
+                        >
+                          {topic}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {input(
+                    "subject",
+                    "Subject",
+                    "A short summary of your question",
+                  )}
+                  <div className="contact-field">
+                    <label htmlFor="contact-message">Your message</label>
+                    <textarea
+                      id="contact-message"
+                      rows={5}
+                      placeholder="Tell us what happened or how we can help..."
+                      {...register("message")}
+                      aria-invalid={!!errors.message}
+                      aria-describedby={
+                        errors.message
+                          ? "contact-message-error"
+                          : "contact-message-hint"
+                      }
+                    />
+                    {errors.message ? (
+                      <p
+                        id="contact-message-error"
+                        className="contact-field-error"
+                      >
+                        {errors.message.message}
+                      </p>
+                    ) : (
+                      <p
+                        id="contact-message-hint"
+                        className="contact-field-hint"
+                      >
+                        For a technical issue, include the page and what you
+                        were trying to do.
+                      </p>
+                    )}
+                  </div>
+                </fieldset>
+                {serverError && (
+                  <div className="auth-server-error" role="alert">
+                    <AlertCircle size={18} aria-hidden="true" />
+                    <p>{serverError}</p>
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  className="btn-primary contact-submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <LoaderCircle
+                        size={18}
+                        className="animate-spin"
+                        aria-hidden="true"
+                      />
+                      Sending your message...
+                    </>
+                  ) : (
+                    <>
+                      Send message
+                      <Send size={18} aria-hidden="true" />
+                    </>
+                  )}
+                </button>
+              </form>
+            </>
+          )}
+        </section>
+      </div>
+    </div>
   );
 };
-

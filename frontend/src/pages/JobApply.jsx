@@ -1,264 +1,377 @@
-import { useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+﻿import { Link, useOutletContext, useParams } from "react-router-dom";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  MapPin,
+  BriefcaseBusiness,
+  CalendarDays,
+  Building2,
+  FileText,
+  Check,
+  ArrowRight,
+  LoaderCircle,
+  AlertCircle,
+} from "lucide-react";
 import useGetSingleJob from "../hooks/useGetSingleJob";
-import useGetAllAppliedJobs from "../hooks/useGetAllAppliedJobs";
+import { useJobseekerApplications } from "../hooks/useJobseekerApplications";
 import { applyJobApiCall } from "../API/api";
+import "./JobApply.css";
 
 export const JobApply = () => {
   const { id } = useParams();
-  const [isApplying, setIsApplying] = useState(false);
-  const [isLoading,setIsLoading]=useState(false)
-  
-  useGetAllAppliedJobs();
-useGetSingleJob(id);
-  
-  const { singleJob } = useSelector((store) => store.job);
-  const { appliedJob } = useSelector((store) => store.application);
-  const { user } = useSelector((store) => store.auth);
-  
-  const isApplied = useMemo(
-    () => appliedJob?.some((job) => job?.job?._id === id),
-    [appliedJob, id]
+  const user = useSelector((store) => store.auth.user);
+  const job = useSelector((store) => store.job.singleJob);
+  const workspace = useOutletContext();
+  const localApplications = useJobseekerApplications(
+    user?._id,
+    !!user && !workspace && user.role === "jobseeker",
   );
-  
-  const handleButtonClick = async () => {
-    if (isApplied || isApplying || !user) return;
-    
-    setIsApplying(true);
+  const applications = workspace || localApplications;
+  const { loading, error, retry } = useGetSingleJob(id);
+  const [applying, setApplying] = useState(false);
+  const [submitted, setSubmitted] = useState(null);
+  const [applyError, setApplyError] = useState(null);
+  const isApplied =
+    submitted === id ||
+    applications.applications.some(
+      (application) => application.job?._id === id,
+    );
+  const jobsPath = user?.role === "jobseeker" ? "/jobseeker/jobs" : "/findJob";
+  const profilePath =
+    user?.role === "jobseeker" ? "/jobseeker/profile" : "/profile";
+  const submit = async () => {
+    if (
+      !user ||
+      user.role !== "jobseeker" ||
+      applying ||
+      isApplied ||
+      applications.loading ||
+      applications.error
+    )
+      return;
+    setApplying(true);
+    setApplyError(null);
     try {
       const response = await applyJobApiCall(id);
-      if (response.data.success) {
-        toast.success(response.data.message);
+      if (!response.data?.success) {
+        setApplyError({
+          id,
+          message:
+            response.data?.message ||
+            "We could not submit your application. Please try again.",
+        });
+        return;
       }
+      setSubmitted(id);
+      applications.retry();
     } catch (error) {
-      console.error("Application error:", error);
-      toast.error(error.response?.data?.message || "Failed to apply. Please try again.");
+      setApplyError({
+        id,
+        message:
+          error.response?.data?.message ||
+          "We could not submit your application. Please try again.",
+      });
     } finally {
-      setIsApplying(false);
+      setApplying(false);
     }
   };
-  
-  // Job type color mapping
-  const getJobTypeColor = (jobType) => {
-    const colors = {
-      'Full-time': 'bg-green-500',
-      'Part-time': 'bg-blue-500',
-      'Contract': 'bg-orange-500',
-      'Internship': 'bg-purple-500',
-      'Remote': 'bg-indigo-500',
-      default: 'bg-gray-500'
-    };
-    return colors[jobType] || colors.default;
-  };
-  
-  // Format salary display
-  const formatSalary = (salary) => {
-    if (!salary) return 'Not specified';
-    return typeof salary === 'number' 
-      ? `$${salary.toLocaleString()}/year` 
-      : `$${salary}`;
-  };
-  
-  // Loading state
-  if (isLoading || !singleJob) {
+  if (error)
     return (
-      <section className="min-h-screen flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <section className="job-detail-page page-container jd-error" role="alert">
+        <span className="jd-error-icon">
+          <AlertCircle size={28} aria-hidden="true" />
+        </span>
+        <h1>We could not load this role.</h1>
+        <p>{error}</p>
+        <button className="btn-primary" onClick={retry}>
+          Try again
+        </button>
+        <Link to={jobsPath} className="text-link">
+          <ArrowLeft size={16} aria-hidden="true" />
+          Back to jobs
+        </Link>
       </section>
     );
+  if (loading || !job)
+    return (
+      <section
+        className="job-detail-page page-container jd-loading"
+        role="status"
+        aria-busy="true"
+      >
+        <p>Loading the opportunity...</p>
+        <div className="jd-skeleton-header" />
+        <div className="jd-skeleton-body" />
+        <span className="sr-only">Loading job details</span>
+      </section>
+    );
+  const company =
+    job.company && typeof job.company === "object" ? job.company : null;
+  const companyName = company?.companyName || "Company details unavailable";
+  const requirements = Array.isArray(job.requirement)
+    ? job.requirement.filter(
+        (value) => typeof value === "string" && value.trim(),
+      )
+    : [];
+  const date = new Date(job.createdAt);
+  const posted =
+    job.createdAt && !Number.isNaN(date.getTime())
+      ? date.toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : "Not specified";
+  const salary =
+    job.salary != null && String(job.salary).trim() !== ""
+      ? Number.isFinite(Number(job.salary))
+        ? Number(job.salary).toLocaleString("en-IN")
+        : String(job.salary)
+      : "Not disclosed";
+  let companyWebsite = null;
+  try {
+    const url = new URL(
+      company?.website?.includes("://")
+        ? company.website
+        : `https://${company?.website || ""}`,
+    );
+    if (["https:", "http:"].includes(url.protocol)) companyWebsite = url.href;
+  } catch {
+    /* A missing website is not shown. */
   }
-  
+  const jobseeker = user?.role === "jobseeker";
   return (
-    <section className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Job Header Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
-            {/* Job Info */}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                {singleJob?.title}
-              </h1>
-              
-              <div className="flex flex-wrap gap-3 mb-4">
-                <span className={`${getJobTypeColor(singleJob?.jobType)} text-white px-3 py-1 rounded-full text-sm font-medium`}>
-                  {singleJob?.jobType}
-                </span>
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {formatSalary(singleJob?.salary)}
-                </span>
-                <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
-                  📍 {singleJob?.location}
-                </span>
-              </div>
-              
-              {/* Company Info */}
-              {singleJob?.company && (
-                <div className="flex items-center gap-3 mb-4">
-                  {singleJob?.company?.logo && (
-                    <img 
-                      src={singleJob.company.logo} 
-                      alt={`${singleJob.company.name} logo`}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  )}
-                  <span className="text-gray-600 font-medium">
-                    {singleJob?.company?.name}
-                  </span>
-                </div>
-              )}
-            </div>
-            
-            {/* Apply Button */}
-            <div className="lg:ml-6">
-              {!user ? (
-                <div className="text-center">
-                  <button 
-                    disabled 
-                    className="bg-gray-300 text-gray-500 px-6 py-3 rounded-lg cursor-not-allowed mb-2"
-                  >
-                    Login to Apply
-                  </button>
-                  <p className="text-sm text-gray-500">Please login to apply for this job</p>
-                </div>
-              ) : (
-                <button
-                  className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 min-w-[140px] ${
-                    isApplied
-                      ? "bg-gray-100 text-gray-600 cursor-not-allowed border border-gray-300"
-                      : isApplying
-                      ? "bg-blue-400 text-white cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg transform hover:-translate-y-0.5"
-                  }`}
-                  onClick={handleButtonClick}
-                  disabled={isApplied || isApplying}
-                >
-                  {isApplying ? (
-                    <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Applying...
-                    </div>
-                  ) : isApplied ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Already Applied
-                    </div>
-                  ) : (
-                    "Apply Now"
-                  )}
-                </button>
-              )}
-            </div>
+    <div className="job-detail-page page-container">
+      <Link className="jd-back" to={jobsPath}>
+        <ArrowLeft size={16} aria-hidden="true" />
+        Back to jobs
+      </Link>
+      <header className="jd-role-header">
+        <div className="jd-company-line">
+          <span className="jd-company-mark" aria-hidden="true">
+            <span>{companyName.slice(0, 1)}</span>
+            {company?.logo && (
+              <img
+                src={company.logo}
+                alt=""
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                }}
+              />
+            )}
+          </span>
+          <div>
+            <span className="jd-company-name">{companyName}</span>
+            <span className="jd-posted">Posted {posted}</span>
           </div>
+          <span className="jd-type-badge">
+            <BriefcaseBusiness size={14} aria-hidden="true" />
+            {job.jobType || "Job type not specified"}
+          </span>
         </div>
-        
-        {/* Job Details Card */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-3">
-            Job Details
-          </h2>
-          
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Left Column */}
-            <div className="space-y-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                  Role
-                </label>
-                <p className="text-gray-900 font-medium">{singleJob?.title}</p>
-              </div>
-              
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                  Location
-                </label>
-                <p className="text-gray-900">{singleJob?.location}</p>
-              </div>
-              
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                  Salary
-                </label>
-                <p className="text-gray-900 font-medium">{formatSalary(singleJob?.salary)}</p>
-              </div>
-              
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                  Posted Date
-                </label>
-                <p className="text-gray-900">
-                  {singleJob?.createdAt 
-                    ? new Date(singleJob.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })
-                    : 'Not specified'
-                  }
-                </p>
-              </div>
+        <h1>{job.title}</h1>
+        <div className="jd-role-meta">
+          <span>
+            <MapPin size={16} aria-hidden="true" />
+            {job.location || "Location not specified"}
+          </span>
+          {job.experience && (
+            <span>
+              <BriefcaseBusiness size={16} aria-hidden="true" />
+              {job.experience}
+            </span>
+          )}
+          <span>
+            <FileText size={16} aria-hidden="true" />
+            {requirements.length
+              ? `${requirements.length} listed ${requirements.length === 1 ? "requirement" : "requirements"}`
+              : "See role details"}
+          </span>
+        </div>
+      </header>
+      <div className="jd-layout">
+        <div className="jd-main-content">
+          <section className="jd-section">
+            <div className="jd-section-heading">
+              <span className="jd-section-icon">
+                <FileText size={19} aria-hidden="true" />
+              </span>
+              <h2>About this role</h2>
             </div>
-            
-            {/* Right Column */}
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                  Requirements
-                </label>
-                {singleJob?.requirement && singleJob.requirement.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {singleJob.requirement.map((req, index) => (
-                      <span 
-                        key={index}
-                        className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-200"
-                      >
-                        {req}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 italic">No specific requirements listed</p>
-                )}
+            <p className="jd-description">
+              {job.description ||
+                "A description has not been provided for this role."}
+            </p>
+          </section>
+          <section className="jd-section">
+            <div className="jd-section-heading">
+              <span className="jd-section-icon">
+                <BriefcaseBusiness size={19} aria-hidden="true" />
+              </span>
+              <h2>Skills & requirements</h2>
+            </div>
+            <p className="jd-section-intro">
+              The experience and skills listed for this opportunity.
+            </p>
+            {requirements.length ? (
+              <ul className="jd-requirements">
+                {requirements.map((requirement, index) => (
+                  <li key={`${requirement}-${index}`}>
+                    <Check size={16} aria-hidden="true" />
+                    <span>{requirement}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="jd-description">
+                No specific requirements have been listed.
+              </p>
+            )}
+          </section>
+          {company?.description && (
+            <section className="jd-section">
+              <div className="jd-section-heading">
+                <span className="jd-section-icon">
+                  <Building2 size={19} aria-hidden="true" />
+                </span>
+                <h2>About {companyName}</h2>
               </div>
-              
-              {singleJob?.experience && (
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                    Experience Required
-                  </label>
-                  <p className="text-gray-900">{singleJob.experience}</p>
-                </div>
+              <p className="jd-description">{company.description}</p>
+              {companyWebsite && (
+                <a
+                  className="jd-company-website"
+                  href={companyWebsite}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Visit company website
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
               )}
-            </div>
-          </div>
-          
-          {/* Description Section */}
-          {singleJob?.description && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <label className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 block">
-                Job Description
-              </label>
-              <div className="prose prose-blue max-w-none">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {singleJob.description}
-                </p>
-              </div>
-            </div>
+            </section>
           )}
         </div>
-        
-        {/* Additional Actions */}
-        <div className="mt-6 flex justify-center">
-          <button 
-            onClick={() => window.history.back()}
-            className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-          >
-            ← Back to Job Listings
-          </button>
-        </div>
+        <aside className="jd-rail" aria-label="Job overview and application">
+          <section className="jd-application-panel">
+            <p className="jd-eyebrow">Your next opportunity</p>
+            <h2>Take the next step.</h2>
+            <dl className="jd-facts">
+              <div>
+                <dt>
+                  <MapPin size={16} aria-hidden="true" />
+                  Location
+                </dt>
+                <dd>{job.location || "Not specified"}</dd>
+              </div>
+              <div>
+                <dt>
+                  <BriefcaseBusiness size={16} aria-hidden="true" />
+                  Employment
+                </dt>
+                <dd>{job.jobType || "Not specified"}</dd>
+              </div>
+              <div>
+                <dt>
+                  <CalendarDays size={16} aria-hidden="true" />
+                  Listed salary
+                </dt>
+                <dd>{salary}</dd>
+              </div>
+            </dl>
+            {isApplied ? (
+              <div className="jd-applied" role="status">
+                <span>
+                  <Check size={19} aria-hidden="true" />
+                </span>
+                <div>
+                  <h3>Application submitted</h3>
+                  <p>You have already applied for this role.</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="jd-apply-note">
+                  Your profile and resume help the recruiter get to know your
+                  experience.
+                </p>
+                {jobseeker && applications.error ? (
+                  <div className="jd-apply-error" role="alert">
+                    <p>We could not check your application status.</p>
+                    <button onClick={applications.retry} type="button">
+                      Try again
+                    </button>
+                  </div>
+                ) : jobseeker ? (
+                  <button
+                    className="btn-primary jd-apply-button"
+                    onClick={submit}
+                    disabled={applying || applications.loading}
+                  >
+                    {applying ? (
+                      <>
+                        <LoaderCircle
+                          size={18}
+                          className="animate-spin"
+                          aria-hidden="true"
+                        />
+                        Submitting...
+                      </>
+                    ) : applications.loading ? (
+                      "Checking application..."
+                    ) : (
+                      <>
+                        Apply for this role
+                        <ArrowRight size={18} aria-hidden="true" />
+                      </>
+                    )}
+                  </button>
+                ) : !user ? (
+                  <Link className="btn-primary jd-apply-button" to="/login">
+                    Sign in to apply
+                    <ArrowRight size={18} aria-hidden="true" />
+                  </Link>
+                ) : (
+                  <p className="jd-account-note">
+                    Apply with a jobseeker account.
+                  </p>
+                )}
+              </>
+            )}
+            {applyError?.id === id && (
+              <p className="jd-apply-error" role="alert">
+                {applyError.message}
+              </p>
+            )}
+            {jobseeker && (
+              <Link
+                className="jd-secondary-action"
+                to={isApplied ? "/jobseeker/applications" : profilePath}
+              >
+                {isApplied ? "View my applications" : "Review my profile"}
+                <ArrowUpRight size={15} aria-hidden="true" />
+              </Link>
+            )}
+          </section>
+          <div className="jd-help-panel">
+            <span>
+              <CircleInfoIcon />
+            </span>
+            <h2>A thoughtful application starts here.</h2>
+            <p>
+              Read the requirements, check your profile, and make sure your
+              resume reflects your latest experience.
+            </p>
+            <Link to={user ? profilePath : "/login"}>
+              Go to my profile
+              <ArrowUpRight size={15} aria-hidden="true" />
+            </Link>
+          </div>
+        </aside>
       </div>
-    </section>
+    </div>
   );
 };
+const CircleInfoIcon = () => <FileText size={20} aria-hidden="true" />;
