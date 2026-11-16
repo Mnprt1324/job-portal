@@ -10,10 +10,6 @@ export const loginSchema = z.object({
     .string()
     .min(1, "Password is required")
     .min(6, "Password must be at least 6 characters"),
-  role: z.enum(["jobseeker", "recruiter", "company"], {
-    required_error: "Please select your role",
-    invalid_type_error: "Please select a valid role",
-  }),
 });
 
 export const registerSchema = z.object({

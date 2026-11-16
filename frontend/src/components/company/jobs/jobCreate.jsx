@@ -1,193 +1,38 @@
-import { Loader2, Save, X } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
+import PropTypes from "prop-types";
 
 const jobTypes = ["Full-time", "Part-time", "Contract", "Internship", "Remote"];
 
-export const emptyJobForm = {
-  title: "",
-  company: "",
-  location: "",
-  salary: "",
-  requirement: "",
-  description: "",
-  jobType: "Full-time",
+export const JobCreate = ({companies,formData,mode="create",saving=false,errors={},serverError="",onChange,onCancel,onSubmit}) => {
+  const field = (name,label,{placeholder="",multiline=false,options,hint,required=true,type="text",maxLength=250}={}) => <div className={`cj-field ${multiline ? "cj-field-wide" : ""}`} key={name}>
+    <label htmlFor={`cj-${name}`}>{label}{required ? <span aria-hidden="true"> *</span> : <span className="cj-optional"> (optional)</span>}</label>
+    {options ? <select id={`cj-${name}`} name={name} value={formData[name]} onChange={onChange} required={required} aria-invalid={!!errors[name]} aria-describedby={errors[name] ? `cj-${name}-error` : undefined}>{options.map(([value,text]) => <option key={value} value={value}>{text}</option>)}</select> : multiline ? <textarea id={`cj-${name}`} name={name} value={formData[name]} onChange={onChange} required={required} rows={5} maxLength={maxLength === 250 ? 15000 : maxLength} placeholder={placeholder} aria-invalid={!!errors[name]} aria-describedby={errors[name] ? `cj-${name}-error` : undefined} /> : <input type={type} min={type === "number" ? 1 : undefined} max={type === "number" ? 1000 : undefined} step={type === "number" ? 1 : undefined} id={`cj-${name}`} name={name} value={formData[name]} onChange={onChange} required={required} maxLength={name === "requirement" ? 2000 : maxLength} placeholder={placeholder} aria-invalid={!!errors[name]} aria-describedby={[errors[name] ? `cj-${name}-error` : "", hint ? `cj-${name}-hint` : ""].filter(Boolean).join(" ") || undefined} />}
+    {hint && <p className="cj-field-hint" id={`cj-${name}-hint`}>{hint}</p>}{errors[name] && <p className="cj-field-error" id={`cj-${name}-error`}>{errors[name]}</p>}
+  </div>;
+  return <form className="cj-form" onSubmit={onSubmit} noValidate aria-busy={saving}><fieldset disabled={saving}>
+    <section className="cj-form-panel"><div className="cj-form-heading"><span>01</span><div><h2>The role at a glance</h2><p>Start with the details candidates use to compare opportunities.</p></div></div><div className="cj-fields">
+      {field("title","Job title",{placeholder:"e.g. Frontend Developer"})}
+      {field("company","Company",{options:[["","Select company profile"],...companies.map((company)=>[company._id,company.companyName])]})}
+      {field("location","Location",{placeholder:"e.g. London, Remote or Hybrid"})}
+      {field("jobType","Job type",{options:[...new Set([...jobTypes,formData.jobType].filter(Boolean))].map((value)=>[value,value])})}
+      {field("salary","Salary",{placeholder:"e.g. GBP 45,000 - 60,000 per year",hint:"Include the currency and pay period for clarity."})}
+      {field("requirement","Skills & requirements",{placeholder:"e.g. React, TypeScript, Accessibility",hint:"Separate each skill or requirement with a comma."})}
+    </div></section>
+    <section className="cj-form-panel"><div className="cj-form-heading"><span>02</span><div><h2>How the role works</h2><p>Optional details that help candidates decide whether the role fits.</p></div></div><div className="cj-fields">
+      {field("workMode","Work arrangement",{required:false,options:[["","Not specified"],["On-site","On-site"],["Hybrid","Hybrid"],["Remote","Remote"]]})}
+      {field("experienceLevel","Experience level",{required:false,options:[["","Not specified"],...["Entry level","Mid level","Senior","Lead","Manager"].map(value=>[value,value])]})}
+      {field("department","Department",{required:false,maxLength:120,placeholder:"e.g. Engineering, Design, Sales"})}
+      {field("openings","Number of openings",{required:false,type:"number",placeholder:"e.g. 2"})}
+      {field("applicationDeadline","Application deadline",{required:false,type:"date",hint:"Applications close at the end of this date (UTC). Leave blank for no deadline."})}
+      {field("education","Education / qualifications",{required:false,maxLength:2000,placeholder:"e.g. Relevant degree or equivalent practical experience"})}
+    </div></section>
+    <section className="cj-form-panel"><div className="cj-form-heading"><span>03</span><div><h2>Give the role some context</h2><p>Explain the responsibilities, your team, and what success looks like.</p></div></div><div className="cj-fields">{field("description","Job description",{multiline:true,placeholder:"Describe the work, the team, and what you are looking for."})}
+      {field("responsibilities","Key responsibilities",{required:false,multiline:true,maxLength:10000,placeholder:"What will this person own, deliver, and collaborate on?"})}
+      {field("benefits","Benefits & perks",{required:false,multiline:true,maxLength:5000,placeholder:"e.g. Flexible hours, learning budget, health cover"})}
+    </div></section>
+    {serverError && <p className="cj-save-error" role="alert">{serverError}</p>}
+    <div className="cj-form-actions"><p>Fields marked * are required. Add optional details when they help candidates.</p><div><button type="button" className="btn-secondary" onClick={onCancel}>Cancel</button><button type="submit" className="btn-primary">{saving ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Save size={16} aria-hidden="true" />}{saving ? "Saving job..." : mode === "edit" ? "Save changes" : "Post job"}</button></div></div>
+  </fieldset></form>;
 };
-
-export const mapJobToForm = (job) => ({
-  title: job?.title || "",
-  company: job?.company?._id || job?.company || "",
-  location: job?.location || "",
-  salary: job?.salary || "",
-  requirement: Array.isArray(job?.requirement)
-    ? job.requirement.join(", ")
-    : job?.requirement || "",
-  description: job?.description || "",
-  jobType: job?.jobType || "Full-time",
-});
-
-export const JobCreate = ({
-  companies,
-  formData,
-  mode = "create",
-  saving = false,
-  onChange,
-  onCancel,
-  onSubmit,
-}) => {
-  const title = mode === "edit" ? "Edit job listing" : "Create job listing";
-  const subtitle =
-    mode === "edit"
-      ? "Update the role details candidates will see."
-      : "Post a new opening for candidates to discover.";
-
-  return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-    >
-      <div className="flex flex-col gap-3 border-b border-gray-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-950">{title}</h2>
-          <p className="mt-1 text-sm text-gray-600">{subtitle}</p>
-        </div>
-
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-        >
-          <X className="h-4 w-4" />
-          Cancel
-        </button>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
-        <Field
-          label="Job Title"
-          name="title"
-          value={formData.title}
-          onChange={onChange}
-          placeholder="Senior Frontend Developer"
-          required
-        />
-
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
-            Company
-          </label>
-          <select
-            name="company"
-            value={formData.company}
-            onChange={onChange}
-            required
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="">Select company profile</option>
-            {companies.map((company) => (
-              <option key={company._id} value={company._id}>
-                {company.companyName}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <Field
-          label="Location"
-          name="location"
-          value={formData.location}
-          onChange={onChange}
-          placeholder="Mohali, Remote, or Hybrid"
-          required
-        />
-
-        <Field
-          label="Salary"
-          name="salary"
-          value={formData.salary}
-          onChange={onChange}
-          placeholder="8 LPA - 12 LPA"
-          required
-        />
-
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
-            Job Type
-          </label>
-          <select
-            name="jobType"
-            value={formData.jobType}
-            onChange={onChange}
-            required
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            {jobTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <Field
-          label="Requirements"
-          name="requirement"
-          value={formData.requirement}
-          onChange={onChange}
-          placeholder="React, Node.js, MongoDB"
-          required
-        />
-      </div>
-
-      <div className="mt-5">
-        <label className="mb-2 block text-sm font-semibold text-gray-700">
-          Description
-        </label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={onChange}
-          rows={5}
-          placeholder="Describe the responsibilities, team, and expectations for this role."
-          required
-          className="w-full resize-none rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-        />
-      </div>
-
-      <div className="mt-6 flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 transition hover:bg-gray-50"
-        >
-          <X className="h-5 w-5" />
-          Discard
-        </button>
-        <button
-          type="submit"
-          disabled={saving}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {saving ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <Save className="h-5 w-5" />
-          )}
-          {mode === "edit" ? "Save Changes" : "Post Job"}
-        </button>
-      </div>
-    </form>
-  );
-};
-
-const Field = ({ label, ...props }) => (
-  <div>
-    <label className="mb-2 block text-sm font-semibold text-gray-700">
-      {label}
-    </label>
-    <input
-      {...props}
-      className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-    />
-  </div>
-);
-
+JobCreate.propTypes = {companies:PropTypes.array.isRequired,formData:PropTypes.object.isRequired,mode:PropTypes.string,saving:PropTypes.bool,errors:PropTypes.object,serverError:PropTypes.string,onChange:PropTypes.func.isRequired,onCancel:PropTypes.func.isRequired,onSubmit:PropTypes.func.isRequired};
 export default JobCreate;

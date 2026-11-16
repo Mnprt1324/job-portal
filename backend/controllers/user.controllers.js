@@ -28,24 +28,25 @@ module.exports.registerUser = async (req, res, next) => {
 
 //loginUser
 module.exports.loginUser = async (req, res, next) => {
-    const { email, password, role } = req.body;
+    try {
+    const { email, password } = req.body;
+    if (typeof email !== 'string' || !email.trim() || typeof password !== 'string' || !password) {
+        return res.status(400).json({ message: 'Email and password are required.', success: false });
+    }
     const user = await userModel.findOne({ email });
     if (!user) {
-        return res.status(400).json({ message: 'Invalid eamil and password', success: false });
+        return res.status(400).json({ message: 'Invalid email or password.', success: false });
     }
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid eamil and password', success: false });
+        return res.status(400).json({ message: 'Invalid email or password.', success: false });
     }
 
-    if (user.role === role) {
         const token = user.generateAuthToken();
-        return res.status(200).json({ token, user, success: true, message: ":Login successful " });
-    }
-    else {
-        return res.status(400).json({ message: 'user cannot exist with current role', success: false });
-
+        return res.status(200).json({ token, user, success: true, message: "Login successful." });
+    } catch (error) {
+        return next(error);
     }
 }
 
@@ -194,3 +195,44 @@ module.exports.resumeUpload = async (req, res) => {
         return res.status(500).json({ message: "internal server error" })
     }
 }
+const companySettingsUser = (user) => ({_id:user._id,name:user.name,email:user.email,role:user.role,profile:user.profile,companySettings:user.companySettings});
+const requireCompany = (req,res) => {
+  if (req.user?.role === 'company') return true;
+  res.status(403).json({success:false,message:'Company access required.'}); return false;
+};
+module.exports.getCompanySettings = async (req,res) => {
+  if (!requireCompany(req,res)) return;
+  try {
+    const user = await userModel.findById(req.user._id);
+    if (!user) return res.status(404).json({success:false,message:'Account not found.'});
+    return res.json({success:true,user:companySettingsUser(user)});
+  } catch { return res.status(500).json({success:false,message:'Unable to load settings. Please try again.'}); }
+};
+module.exports.updateCompanySettings = async (req,res) => {
+  if (!requireCompany(req,res)) return;
+  const {name,defaultLocation,defaultJobType,defaultWorkMode} = req.body;
+  if (typeof name !== 'string' || !name.trim() || name.trim().length > 100) return res.status(400).json({success:false,message:'Enter an account name of up to 100 characters.'});
+  if (typeof defaultLocation !== 'string' || defaultLocation.trim().length > 200) return res.status(400).json({success:false,message:'Location must be under 200 characters.'});
+  if (!['Full-time','Part-time','Contract','Internship','Remote'].includes(defaultJobType) || !['','On-site','Hybrid','Remote'].includes(defaultWorkMode)) return res.status(400).json({success:false,message:'Choose valid job defaults.'});
+  try {
+    const user = await userModel.findById(req.user._id);
+    if (!user) return res.status(404).json({success:false,message:'Account not found.'});
+    user.name = name.trim();
+    user.companySettings = {defaultLocation:defaultLocation.trim(),defaultJobType,defaultWorkMode};
+    await user.save();
+    return res.json({success:true,message:'Settings saved.',user:companySettingsUser(user)});
+  } catch { return res.status(500).json({success:false,message:'Unable to save settings. Please try again.'}); }
+};
+module.exports.changePassword = async (req,res) => {
+  const {currentPassword,newPassword} = req.body;
+  if (typeof currentPassword !== 'string' || !currentPassword || typeof newPassword !== 'string' || newPassword.length < 8 || newPassword.length > 128 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/\d/.test(newPassword) || !/[^a-zA-Z0-9]/.test(newPassword)) return res.status(400).json({success:false,message:'Use 8-128 characters with uppercase, lowercase, a number, and a symbol.'});
+  if (currentPassword === newPassword) return res.status(400).json({success:false,message:'Choose a password different from your current password.'});
+  try {
+    const user = await userModel.findById(req.user._id);
+    if (!user) return res.status(404).json({success:false,message:'Account not found.'});
+    if (!await user.comparePassword(currentPassword)) return res.status(400).json({success:false,message:'Current password is incorrect.'});
+    user.password = await userModel.hashPassword(newPassword);
+    await user.save();
+    return res.json({success:true,message:'Password updated.'});
+  } catch { return res.status(500).json({success:false,message:'Unable to update your password. Please try again.'}); }
+};

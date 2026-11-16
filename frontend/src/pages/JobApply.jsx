@@ -142,6 +142,9 @@ export const JobApply = () => {
     /* A missing website is not shown. */
   }
   const jobseeker = user?.role === "jobseeker";
+  const deadline = job.applicationDeadline && /^\d{4}-\d{2}-\d{2}$/.test(job.applicationDeadline) ? new Date(`${job.applicationDeadline}T23:59:59.999Z`) : null;
+  const closed = deadline && !Number.isNaN(deadline.getTime()) && Date.now() > deadline.getTime();
+  const deadlineLabel = deadline && !Number.isNaN(deadline.getTime()) ? deadline.toLocaleDateString("en-IN", {day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}) : null;
   return (
     <div className="job-detail-page page-container">
       <Link className="jd-back" to={jobsPath}>
@@ -230,6 +233,7 @@ export const JobApply = () => {
               </p>
             )}
           </section>
+          {[["Key responsibilities",job.responsibilities],["Education & qualifications",job.education],["Benefits & perks",job.benefits]].filter(([,value]) => value).map(([title,value]) => <section className="jd-section" key={title}><div className="jd-section-heading"><span className="jd-section-icon"><FileText size={19} aria-hidden="true" /></span><h2>{title}</h2></div><p className="jd-description">{value}</p></section>)}
           {company?.description && (
             <section className="jd-section">
               <div className="jd-section-heading">
@@ -280,6 +284,7 @@ export const JobApply = () => {
                 </dt>
                 <dd>{salary}</dd>
               </div>
+              {[["Work arrangement",job.workMode],["Experience level",job.experienceLevel],["Department",job.department],["Openings",job.openings],["Apply by",deadlineLabel && `${deadlineLabel} (UTC)`]].filter(([,value]) => value).map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
             </dl>
             {isApplied ? (
               <div className="jd-applied" role="status">
@@ -291,6 +296,8 @@ export const JobApply = () => {
                   <p>You have already applied for this role.</p>
                 </div>
               </div>
+            ) : closed ? (
+              <div className="jd-applied" role="status"><div><h3>Applications closed</h3><p>The application deadline for this role has passed.</p></div></div>
             ) : (
               <>
                 <p className="jd-apply-note">

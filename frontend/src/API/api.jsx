@@ -115,6 +115,10 @@ export const getSingleJobApiCall = (id) => {
 export const updateJobApiCall = (id, data) => {
   return api.post(`job/updateJob/${id}`, data, { withCredentials: true });
 };
+export const deleteJobApiCall = (id) => api.delete(`/job/deleteJob/${id}`, { withCredentials: true });
+export const getCompanySettingsApi = () => api.get('/users/company/settings');
+export const updateCompanySettingsApi = (data) => api.patch('/users/company/settings', data);
+export const changePasswordApi = (data) => api.post('/users/password/change', data);
 
 export const applyJobApiCall = (id, data = {}) => {
   return api.post(`/applications/apply/${id}`, data, { withCredentials: true });

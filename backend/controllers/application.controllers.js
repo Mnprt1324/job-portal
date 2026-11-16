@@ -14,7 +14,10 @@ module.exports.applyJob = async (req, res) => {
         if (existingApplication) return res.status(400).json({ message: "You have already applied for this job" ,success: false });
 
         const job = await jobModel.findById(jobId);
-            if (!job) return res.status(404).json({ message: "job not found" ,success: false });
+            if (!job || job.deletedAt) return res.status(404).json({ message: "job not found" ,success: false });
+        if (job.applicationDeadline && Date.now() > Date.parse(`${job.applicationDeadline}T23:59:59.999Z`)) {
+            return res.status(400).json({success:false,message:'Applications for this role have closed.'});
+        }
      
         const newApplication = await applicationModel.create({
             job: jobId,

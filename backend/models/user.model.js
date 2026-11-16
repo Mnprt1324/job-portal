@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
         enum: ["jobseeker", "recruiter", "company"],
         required: true
     },
+    companySettings: {
+        defaultLocation: { type: String, maxlength: 200, default: '' },
+        defaultJobType: { type: String, enum: ['Full-time','Part-time','Contract','Internship','Remote'], default: 'Full-time' },
+        defaultWorkMode: { type: String, enum: ['','On-site','Hybrid','Remote'], default: '' },
+    },
     profile: {
         profileImg: {
             type: String,//url

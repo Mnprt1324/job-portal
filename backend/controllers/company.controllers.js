@@ -3,19 +3,53 @@ const getDataUri = require("../utils/datauri");
 const cloudinary=require("../utils/cloudinary");
 const mongoose =require("mongoose");
 
-module.exports.registerCompany=async (req,res,)=>{
-try {
-    const {companyName}=req.body;
-    if(!companyName) res.status(400).json({message:"Company name is required",success:false});
-    let company=await companyModel.findOne({companyName});
-    if(company) res.status(400).json({message:"you cannot register same company",success:false});
-    company =await companyModel.create({companyName,createdByUserId:req.user._id})
-    return res.status(201).json({ message: "Company registered successfully.",company,success:true }) 
-} catch (error) {
-    console.log("error in registering company:",error);
-    return res.status(404).json({message:"server error : company"})
-}
-}
+const profileFields = {companyName: 160, tagline: 160, description: 5000, website: 500, location: 200, industry: 100, contactEmail: 254, linkedin: 500, twitter: 500, instagram: 500, github: 500, benefits: 3000, companySize: 20};
+const readProfile = (body) => {
+  const data = {};
+  for (const [field, max] of Object.entries(profileFields)) {
+    if (body[field] === undefined) continue;
+    if (typeof body[field] !== 'string' || body[field].trim().length > max) throw new Error(`Please check ${field}. Maximum ${max} characters.`);
+    data[field] = body[field].trim();
+  }
+  if (data.companyName === '') throw new Error('Company name is required.');
+  for (const field of ['website', 'linkedin', 'twitter', 'instagram', 'github']) {
+    if (!data[field]) continue;
+    let url;
+    try { url = new URL(data[field]); } catch { throw new Error(`Enter a valid https:// URL for ${field}.`); }
+    if (!['https:', 'http:'].includes(url.protocol) || !url.hostname.includes('.') || url.username || url.password) throw new Error(`Enter a valid http or https URL for ${field}.`);
+  }
+  if (data.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.contactEmail)) throw new Error('Enter a valid contact email.');
+  if (data.companySize !== undefined && !['', '1-10', '11-50', '51-200', '201-500', '501-1000', '1001+'].includes(data.companySize)) throw new Error('Choose a valid company size.');
+  if (body.foundedYear !== undefined) {
+    if (body.foundedYear === '') data.foundedYear = null;
+    else {
+      const year = Number(body.foundedYear);
+      if (!Number.isInteger(year) || year < 1800 || year > new Date().getFullYear()) throw new Error('Enter a valid founding year.');
+      data.foundedYear = year;
+    }
+  }
+  return data;
+};
+const uploadLogo = async (file) => {
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype) || file.size > 5 * 1024 * 1024) throw Object.assign(new Error('Choose a JPG, PNG or WebP logo under 5 MB.'), { status: 400 });
+  const result = await cloudinary.uploader.upload(getDataUri(file).content);
+  if (!result.secure_url) throw new Error('Logo upload failed. Please try again.');
+  return result.secure_url;
+};
+
+module.exports.registerCompany = async (req, res) => {
+  try {
+    let data;
+    try { data = readProfile(req.body); } catch (error) { return res.status(400).json({success:false, message:error.message}); }
+    if (!data.companyName) return res.status(400).json({success:false,message:'Company name is required.'});
+    if (await companyModel.findOne({companyName:data.companyName})) return res.status(400).json({success:false,message:'This company name is already registered.'});
+    if (req.file) data.logo = await uploadLogo(req.file);
+    const company = await companyModel.create({...data, createdByUserId:req.user._id});
+    return res.status(201).json({success:true,company,message:'Company profile created.'});
+  } catch (error) {
+    return res.status(error.status || 500).json({success:false,message:error.status === 400 ? error.message : 'Unable to create company profile. Please try again.'});
+  }
+};
 
 module.exports.getCompanyCreateByrecruiter=async (req,res)=>{
 try {
@@ -42,29 +76,19 @@ try {
 }
 }
 
-module.exports.updateCompanyProfile=async (req,res)=>{
+module.exports.updateCompanyProfile = async (req, res) => {
   try {
-    let {id}=req.params;
-    const {companyName,description,website,location}=req.body;
-    
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid company ID" });
-    }
-
-    const updateData={companyName,description,website,location};
-
-    if (req.file) {
-      const file = req.file;
-      const fileUri = getDataUri(file);
-      const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-      updateData.logo = cloudResponse.secure_url;
-    }
-
-    const company =await companyModel.findByIdAndUpdate(id,updateData,{new:true});
-    if(!company) return res.status(404).json({message:"Company not found"});
-    return res.status(200).json({company,message:"Company information updated",success:true});
+    const {id} = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({success:false,message:'Invalid company ID.'});
+    let data;
+    try { data = readProfile(req.body); } catch (error) { return res.status(400).json({success:false,message:error.message}); }
+    const filter = {_id:id,createdByUserId:req.user._id};
+    if (!await companyModel.findOne(filter)) return res.status(404).json({success:false,message:'Company not found.'});
+    if (req.file) data.logo = await uploadLogo(req.file);
+    const company = await companyModel.findOneAndUpdate(filter, {$set:data}, {new:true,runValidators:true});
+    if (!company) return res.status(404).json({success:false,message:'Company not found.'});
+    return res.status(200).json({success:true,company,message:'Company profile saved.'});
   } catch (error) {
-    console.log("error from :updateCompanyProfile",error)
-    return res.status(404).json({message:"server error :updateCompanyProfile"})   
+    return res.status(error.status || 500).json({success:false,message:error.status === 400 ? error.message : 'Unable to save company profile. Please try again.'});
   }
-}
+};

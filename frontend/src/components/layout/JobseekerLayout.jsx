@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Link,
   NavLink,
@@ -20,7 +20,10 @@ import {
   X,
   CircleHelp,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
+import PropTypes from "prop-types";
+import { CompanySidebar } from "../company/CompanySidebar";
 import Cookies from "js-cookie";
 import { logoutUserApiCall } from "../../API/api";
 import { logoutUser } from "../../redux/authSlice";
@@ -43,16 +46,47 @@ export const JobseekerLayout = () => {
 const JobseekerWorkspace = () => {
   const user = useSelector((store) => store.auth.user);
   const applications = useJobseekerApplications(user._id);
+  return <WorkspaceShell applications={applications} />;
+};
+
+export const WorkspaceShell = ({ company = false, applications = {} }) => {
+  const user = useSelector((store) => store.auth.user);
+  const base = company ? "/company" : "/jobseeker";
+  const profilePath = company ? "/company/profile" : "/jobseeker/profile";
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef(null);
+  const accountButtonRef = useRef(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
   const drawerRef = useRef(null);
   const toggleRef = useRef(null);
   useEffect(() => {
+    if (!accountOpen) return;
+    const outside = (event) => {
+      if (!accountRef.current?.contains(event.target)) setAccountOpen(false);
+    };
+    const escape = (event) => {
+      if (event.key === "Escape") {
+        setAccountOpen(false);
+        accountButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    document.addEventListener("focusin", outside);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+      document.removeEventListener("focusin", outside);
+    };
+  }, [accountOpen]);
+  useEffect(() => {
     setMenuOpen(false);
+    setAccountOpen(false);
     window.scrollTo(0, 0);
   }, [pathname]);
   useEffect(() => {
@@ -111,7 +145,8 @@ const JobseekerWorkspace = () => {
     }
   };
   const initial = (user.name || "J").trim().slice(0, 1).toUpperCase();
-  const title = pathname.endsWith("/applications")
+  const companyTitles = {dashboard: "Dashboard", jobs: "Jobs", interviews: "Interviews", profile: "Company profile", account: "Account", settings: "Settings"};
+  const title = company ? (companyTitles[pathname.split("/")[2]] || "Workspace") : pathname.endsWith("/applications")
     ? "My applications"
     : pathname.startsWith("/jobseeker/profile")
       ? "My profile"
@@ -121,7 +156,7 @@ const JobseekerWorkspace = () => {
           ? "Job details"
           : "Dashboard";
   return (
-    <div className="js-workspace">
+    <div className={`js-workspace ${company ? "company-workspace" : ""}`}>
       <a className="skip-link" href="#jobseeker-main">
         Skip to dashboard
       </a>
@@ -141,10 +176,10 @@ const JobseekerWorkspace = () => {
         ref={drawerRef}
         id="jobseeker-navigation"
         className={`js-sidebar ${menuOpen ? "is-open" : ""}`}
-        aria-label="Jobseeker navigation"
+        aria-label={company ? "Company navigation" : "Jobseeker navigation"}
       >
         <div className="js-brand-row">
-          <Link to="/jobseeker/dashboard" className="js-brand">
+          <Link to={`${base}/dashboard`} className="js-brand">
             <span>
               <InfinityIcon size={24} aria-hidden="true" />
             </span>
@@ -163,7 +198,7 @@ const JobseekerWorkspace = () => {
           </button>
         </div>
         <p className="js-sidebar-label">Your workspace</p>
-        <nav aria-label="Jobseeker workspace">
+        {company ? <CompanySidebar /> : <nav aria-label="Jobseeker workspace">
           <NavLink to="/jobseeker/dashboard">
             <LayoutDashboard size={19} aria-hidden="true" />
             Dashboard
@@ -187,41 +222,7 @@ const JobseekerWorkspace = () => {
             My profile
             <ArrowUpRight size={15} className="js-nav-out" aria-hidden="true" />
           </NavLink>
-        </nav>
-        <div className="js-sidebar-tip">
-          <span className="js-tip-icon">
-            <UserRound size={20} aria-hidden="true" />
-          </span>
-          <h2>A profile that tells your story.</h2>
-          <p>Keep your experience, skills, and resume up to date.</p>
-          <Link to="/jobseeker/profile">
-            View your profile
-            <ArrowUpRight size={15} aria-hidden="true" />
-          </Link>
-        </div>
-        <div className="js-sidebar-bottom">
-          <Link to="/contact">
-            <CircleHelp size={18} aria-hidden="true" />
-            Help & support
-          </Link>
-          <button type="button" onClick={logout} disabled={loggingOut}>
-            <LogOut size={18} aria-hidden="true" />
-            {loggingOut ? "Signing out..." : "Sign out"}
-          </button>
-          {logoutError && (
-            <p className="js-logout-error" role="alert">
-              {logoutError}
-            </p>
-          )}
-          <Link to="/jobseeker/profile" className="js-sidebar-person">
-            <span className="js-avatar">{initial}</span>
-            <span>
-              <strong>{user.name || "Your profile"}</strong>
-              <small>Jobseeker account</small>
-            </span>
-            <ChevronRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
+        </nav>}
       </aside>
       <div className="js-workspace-body" inert={menuOpen}>
         <header className="js-topbar">
@@ -243,24 +244,33 @@ const JobseekerWorkspace = () => {
           </div>
           <div>
             <Link
-              to="/jobseeker/jobs"
+              to={`${base}/jobs`}
               className="js-topbar-search"
-              aria-label="Find jobs"
+              aria-label={company ? "Manage jobs" : "Find jobs"}
             >
               <Search size={19} />
-              <span>Find your next role</span>
+              <span>{company ? "Manage jobs" : "Find your next role"}</span>
             </Link>
-            <Link to="/jobseeker/profile" className="js-topbar-account">
+            <div className="js-account" ref={accountRef}>
+            <button type="button" ref={accountButtonRef} className="js-topbar-account" aria-label={user.name || "Your profile"} aria-expanded={accountOpen} aria-controls="jobseeker-account-menu" onClick={() => setAccountOpen((open) => !open)}>
               <span className="js-avatar">{initial}</span>
               <span>{user.name || "Your profile"}</span>
-            </Link>
+              <ChevronDown size={15} aria-hidden="true" />
+            </button>
+            {accountOpen && <div id="jobseeker-account-menu" className="js-account-dropdown" aria-label="Account options">
+              <Link to={profilePath} onClick={() => setAccountOpen(false)}><UserRound size={18} aria-hidden="true" />{company ? "Company profile" : "My profile"}</Link>
+              <Link to="/contact" onClick={() => setAccountOpen(false)}><CircleHelp size={18} aria-hidden="true" />Help & support</Link>
+              <button type="button" onClick={logout} disabled={loggingOut}><LogOut size={18} aria-hidden="true" />{loggingOut ? "Signing out..." : "Sign out"}</button>
+              {logoutError && <p className="js-logout-error" role="alert">{logoutError}</p>}
+            </div>}
+            </div>
           </div>
         </header>
         <main id="jobseeker-main" className="js-main" tabIndex={-1}>
           <Outlet context={{ user, ...applications }} />
         </main>
         <div className="js-workspace-note">
-          Your career, your direction.
+          {company ? "Your team, your next chapter." : "Your career, your direction."}
           <Link to="/contact">
             Need help?
             <ArrowUpRight size={13} aria-hidden="true" />
@@ -270,3 +280,5 @@ const JobseekerWorkspace = () => {
     </div>
   );
 };
+
+WorkspaceShell.propTypes = { company: PropTypes.bool, applications: PropTypes.object };

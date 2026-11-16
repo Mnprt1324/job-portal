@@ -42,7 +42,7 @@ export const AuthForm = ({ signup = false }) => {
       email: "",
       password: "",
       confirmPassword: "",
-      role: "jobseeker",
+      ...(signup ? { role: "jobseeker" } : {}),
     },
     mode: "onSubmit",
     reValidateMode: "onChange",
@@ -177,9 +177,9 @@ export const AuthForm = ({ signup = false }) => {
         aria-busy={isSubmitting}
       >
         <fieldset className="auth-controls" disabled={isSubmitting}>
-          <fieldset className="auth-roles">
+          {signup && <fieldset className="auth-roles">
             <legend>
-              {signup ? "I am joining as a" : "I am signing in as a"}
+              I am joining as a
             </legend>
             <div>
               {roles.map(([value, label, Icon]) => (
@@ -196,7 +196,7 @@ export const AuthForm = ({ signup = false }) => {
             {errors.role && (
               <p className="auth-field-error">{errors.role.message}</p>
             )}
-          </fieldset>
+          </fieldset>}
           {signup &&
             field("name", "Full name", {
               autoComplete: "name",

@@ -29,6 +29,7 @@ import { UpdateJob } from "./pages/UpdateJob";
 import { Applicants } from "./pages/Applicants";
 import { RecruiterDashboard } from "./pages/RecruiterDashboard";
 import { CompanyDashboard } from "./pages/company/CompanyDashboard";
+import { CompanySettings } from "./pages/company/CompanySettings";
 import { CompanyBlankPage } from "./pages/company/CompanyBlankPage";
 import { CompanyProfile } from "./components/company/CompanyProfile";
 import { CompanyJobs } from "./components/company/jobs/jobs";
@@ -43,6 +44,18 @@ import { Super } from "./utils/Super";
 export const App = () => {
   const router = createBrowserRouter([
     { path: "*", element: <NotFound /> },
+        {
+          element: <CompanyRoute />,
+          children: [
+            { path: "company", element: <Navigate to="/company/dashboard" replace /> },
+            { path: "company/dashboard", element: <CompanyDashboard /> },
+            { path: "company/jobs", element: <CompanyJobs /> },
+            { path: "company/interviews", element: <CompanyBlankPage /> },
+            { path: "company/profile", element: <CompanyProfile /> },
+            { path: "company/account", element: <Navigate to="/company/profile" replace /> },
+            { path: "company/settings", element: <CompanySettings /> },
+          ],
+        },
     { path: "/jobseeker", element: <JobseekerLayout />, children: [
       { index: true, element: <Navigate to="/jobseeker/dashboard" replace /> },
       { path: "dashboard", element: <JobseekerDashboard /> },
@@ -113,17 +126,7 @@ export const App = () => {
             { path: "jobs/applicants/:id", element: <Applicants /> },
           ],
         },
-        {
-          element: <CompanyRoute />,
-          children: [
-            { path: "company/dashboard", element: <CompanyDashboard /> },
-            { path: "company/jobs", element: <CompanyJobs /> },
-            { path: "company/interviews", element: <CompanyBlankPage /> },
-            { path: "company/profile", element: <CompanyProfile /> },
-            { path: "company/account", element: <CompanyBlankPage /> },
-            { path: "company/settings", element: <CompanyBlankPage /> },
-          ],
-        },
+
       ],
     },
   ]);

@@ -1,4 +1,4 @@
-﻿.js-workspace {
+.js-workspace {
   min-height: 100svh;
   background: var(--p-bg);
   color: var(--p-ink);
@@ -19,7 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 40px;
+  margin-bottom: 16px;
 }
 .js-brand {
   display: inline-flex;
@@ -84,88 +84,6 @@
 }
 .js-nav-out {
   margin-left: auto;
-}
-.js-sidebar-tip {
-  padding: 16px;
-  border: 1px solid var(--color-border);
-  background: var(--p-bg);
-  border-radius: 12px;
-  margin-top: 36px;
-  margin-bottom: 32px;
-}
-.js-tip-icon {
-  color: var(--p-action);
-  display: block;
-  margin-bottom: 12px;
-}
-.js-sidebar-tip h2 {
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 1.4;
-  margin: 0 0 8px;
-}
-.js-sidebar-tip p {
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--p-muted);
-  margin: 0 0 8px;
-}
-.js-sidebar-tip > a {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  min-height: 44px;
-  color: var(--p-action);
-  font-size: 12px;
-  font-weight: 500;
-}
-.js-sidebar-bottom {
-  margin-top: auto;
-}
-.js-sidebar-bottom > a:not(.js-sidebar-person),
-.js-sidebar-bottom > button {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 10px 12px;
-  font-size: 13px;
-  color: var(--p-muted);
-  width: 100%;
-  text-align: left;
-  border-radius: 8px;
-}
-.js-sidebar-bottom > button:hover {
-  background: #fff1f0;
-  color: #a72d25;
-}
-.js-sidebar-bottom > a:hover {
-  color: var(--p-action);
-}
-.js-sidebar-person {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  border-top: 1px solid var(--color-border);
-  padding: 20px 0 0;
-  margin-top: 12px;
-  min-height: 64px;
-}
-.js-sidebar-person > span:nth-child(2) {
-  min-width: 0;
-  flex: 1;
-}
-.js-sidebar-person strong {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 500;
-  font-size: 13px;
-}
-.js-sidebar-person small {
-  font-size: 11px;
-  color: var(--p-muted);
 }
 .js-avatar {
   display: grid;
@@ -902,7 +820,7 @@
   .js-topbar > div {
     gap: 16px;
   }
-  .js-topbar-account > span:last-child {
+  .js-topbar-account > span:nth-child(2) {
     display: none;
   }
   .js-drawer-backdrop {
@@ -914,7 +832,7 @@
     border: 0;
   }
   .js-brand-row {
-    margin-bottom: 28px;
+    margin-bottom: 16px;
   }
   .js-dashboard-grid {
     grid-template-columns: minmax(0, 1.8fr) minmax(260px, 1fr);
@@ -1216,3 +1134,33 @@
     font-size: 18px;
   }
 }
+
+.js-account { position: relative; }
+.js-account-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: min(240px, calc(100vw - 32px));
+  padding: 6px;
+  z-index: 50;
+  background: var(--p-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 10%);
+}
+.js-account-dropdown > a, .js-account-dropdown > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  text-align: left;
+  font-size: 13px;
+}
+.js-account-dropdown > a:hover, .js-account-dropdown > button:hover {
+  background: var(--p-bg);
+  color: var(--p-action);
+}
+.js-account-dropdown > button:disabled { opacity: .6; cursor: wait; }
