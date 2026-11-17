@@ -1,34 +1,47 @@
-.company-overview { display: grid; gap: 24px; }
+.company-workspace { --company-gap: 16px; --company-panel-padding: 20px; --company-gutter: 24px; }
+.company-workspace .js-topbar { min-height: 64px; padding: 10px var(--company-gutter); gap: 16px; }
+.company-workspace .js-topbar > div { gap: 16px; }
+.company-workspace .js-sidebar { padding: 20px 16px 12px; }
+.company-workspace .js-brand-row { margin-bottom: 12px; }
+.company-workspace .js-sidebar-label { margin-bottom: 8px; }
+.company-workspace .js-sidebar nav > a { min-height: 44px; padding: 10px 12px; }
+.company-workspace .js-main { padding: 20px var(--company-gutter); }
+.company-workspace .js-workspace-note { padding: 0 var(--company-gutter) 12px; }
+.company-workspace .js-welcome { padding: 20px 24px; gap: 16px; }
+.company-workspace .js-welcome h1 { margin-bottom: 8px; }
+.company-workspace .js-welcome > div > p { margin-bottom: 10px; }
+@media(max-width: 600px) { .company-workspace { --company-panel-padding: 16px; --company-gutter: 16px; } }
+.company-overview { display: grid; gap: var(--company-gap, 16px); }
 .company-welcome-link { display: inline-flex; align-items: center; gap: 16px; background: var(--p-surface); color: var(--p-action); padding: 14px 20px; border-radius: 8px; min-height: 48px; white-space: nowrap; }
 .company-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .company-stat, .company-panel, .company-state { background: var(--p-surface); border: 1px solid var(--color-border); border-radius: 12px; }
-.company-stat { padding: 24px; }
+.company-stat { padding: var(--company-panel-padding, 20px); }
 .company-stat > span { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--p-muted); }
 .company-stat > span > svg:last-child { margin-left: auto; }
-.company-stat strong { display: block; font-size: 32px; font-weight: 500; margin-top: 20px; }
-.company-overview-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 24px; }
+.company-stat strong { display: block; font-size: 32px; font-weight: 500; margin-top: 14px; }
+.company-overview-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: var(--company-gap, 16px); }
 .company-panel { min-width: 0; overflow: hidden; }
-.company-panel header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px; border-bottom: 1px solid var(--color-border); }
+.company-panel header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: var(--company-panel-padding, 20px); border-bottom: 1px solid var(--color-border); }
 .company-panel h2 { font-size: 18px; font-weight: 500; margin: 0 0 8px; }
 .company-panel h3 { font-size: 16px; font-weight: 500; margin: 0 0 8px; overflow-wrap: anywhere; }
 .company-panel p { color: var(--p-muted); font-size: 13px; line-height: 1.7; margin: 0; overflow-wrap: anywhere; }
 .company-panel a:not(.btn-primary), .company-inline-link { color: var(--p-action); display: inline-flex; align-items: center; gap: 8px; font-size: 13px; min-height: 44px; }
 .company-panel header > a { white-space: nowrap; }
 .company-panel ul { list-style: none; margin: 0; padding: 0 24px; }
-.company-panel li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--color-border); }
+.company-panel li { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--color-border); }
 .company-panel li:last-child { border: 0; }
 .company-panel li > div { min-width: 0; }
-.company-panel-body { padding: 24px; }
-.company-panel-body .company-inline-link { margin-top: 20px; }
-.company-empty { padding: 40px 24px; text-align: center; }
+.company-panel-body { padding: var(--company-panel-padding, 20px); }
+.company-panel-body .company-inline-link { margin-top: 14px; }
+.company-empty { padding: 28px 20px; text-align: center; }
 .company-empty > svg { color: var(--p-muted); margin: 0 auto 20px; }
 .company-empty .btn-primary { margin-top: 24px; }
 .company-state { padding: 32px; }
-.company-state button { margin-top: 20px; }
+.company-state button { margin-top: 14px; }
 .company-workspace .js-main > section { min-height: auto; }
 @media(max-width: 767px) {
   .company-stats, .company-overview-grid { grid-template-columns: 1fr; }
-  .company-panel header, .company-panel-body, .company-stat { padding: 20px; }
+  .company-panel header, .company-panel-body, .company-stat { padding: var(--company-panel-padding, 20px); }
   .company-overview .js-welcome { align-items: flex-start; flex-direction: column; }
 }
 /* Existing company forms follow the same workspace surface and type system. */

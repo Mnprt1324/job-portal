@@ -102,7 +102,7 @@ export const RecoveryForm = ({ stage = "email" }) => {
         ? forgetPasswordApiCall(data)
         : stage === "verify"
           ? verifyOtpApiCall({ email, otp: data.otp })
-          : updatePassApiCall({ email, password: data.password }));
+          : updatePassApiCall({ email, password: data.password, resetToken: sessionStorage.getItem("resetToken") }));
       if (!response.data?.success) {
         setServerError(
           response.data?.message ||
@@ -111,15 +111,18 @@ export const RecoveryForm = ({ stage = "email" }) => {
         return;
       }
       if (stage === "email") {
+        sessionStorage.removeItem("resetToken");
         localStorage.setItem("email", data.email);
         dispatch(setResetFlowStep("verify"));
         dispatch(setForgetAuth(true));
         navigate("/verify/password");
       } else if (stage === "verify") {
+        sessionStorage.setItem("resetToken", response.data.resetToken || "");
         dispatch(setResetFlowStep("update"));
         navigate("/update/password");
       } else {
         localStorage.removeItem("email");
+        sessionStorage.removeItem("resetToken");
         dispatch(setForgetAuth(false));
         dispatch(setResetFlowStep("verify"));
         toast.success("Password updated. Sign in with your new password.");

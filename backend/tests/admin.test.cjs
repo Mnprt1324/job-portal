@@ -1,0 +1,43 @@
+const assert=require('node:assert/strict');
+const crypto=require('node:crypto');
+const jwt=require('jsonwebtoken');
+const User=require('../models/user.model');
+const Job=require('../models/job.model');
+const Company=require('../models/company.model');
+const Application=require('../models/application.model');
+const Contact=require('../models/contact.model');
+const admin=require('../controllers/admin.controllers');
+const users=require('../controllers/user.controllers');
+const auth=require('../middleware/auth');
+const response=()=>({code:200,status(code){this.code=code;return this},json(body){this.body=body;return this}});
+const id='507f191e810c19729de860ea', actor='507f1f77bcf86cd799439011';
+const query=(value,selected)=>({select(valueSelect){selected?.(valueSelect);return this},populate(){return this},sort(){return this},skip(value){assert.ok(value>=0);return this},limit(value){assert.ok(value<=15);return this},then(resolve){resolve(value)}});
+require('node:test').test('Admin authentication, management permissions, and verified recovery', async()=>{
+ assert.ok(User.schema.path('role').enumValues.includes('admin'));
+ let res=response();await users.registerUser({body:{name:'Admin',email:'admin@example.com',password:'Secret1!',role:'admin'}},res);assert.equal(res.code,400);
+ let role='admin',suspended=false;User.findById=()=>query({_id:actor,role,isSuspended:suspended});jwt.verify=()=>({_id:actor,role:'admin'});
+ let passed=false;res=response();await auth.authenticate({headers:{authorization:'Bearer fixture'}},res,()=>passed=true);assert.equal(passed,true);
+ suspended=true;passed=false;res=response();await auth.authenticate({headers:{authorization:'Bearer fixture'}},res,()=>passed=true);assert.equal(passed,false);assert.equal(res.code,403);
+ suspended=false;role='company';res=response();await auth.authenticate({headers:{authorization:'Bearer fixture'}},res,()=>{throw Error('Stale admin claims accepted')});assert.equal(res.code,403);
+ for(const candidate of ['company','jobseeker']){res=response();auth.requireAdmin({user:{role:candidate}},res,()=>{throw Error('Non-admin allowed')});assert.equal(res.code,403);}
+ let update,recordRole='company';User.findById=()=>query({_id:id,role:recordRole});User.findByIdAndUpdate=(record,data)=>{update=data.$set;return query({_id:record,...update})};
+ res=response();await admin.update({user:{_id:actor},params:{resource:'users',id},body:{isSuspended:true}},res);assert.equal(res.body.success,true);assert.equal(update.isSuspended,true);
+ recordRole='admin';res=response();await admin.update({user:{_id:actor},params:{resource:'users',id},body:{isSuspended:true}},res);assert.equal(res.code,403);
+ res=response();await admin.update({params:{resource:'users',id},body:{role:'admin'}},res);assert.equal(res.code,400);
+ Job.findByIdAndUpdate=(record,data)=>{update=data.$set;return query({_id:record,...update})};
+ res=response();await admin.update({params:{resource:'jobs',id},body:{deleted:true}},res);assert.equal(res.code,200);assert.ok(update.deletedAt instanceof Date);
+ res=response();await admin.update({params:{resource:'jobs',id},body:{deleted:false,requirement:'React, React, Testing'}},res);assert.equal(update.deletedAt,null);assert.deepEqual(update.requirement,['React','Testing']);
+ Company.findByIdAndUpdate=(record,data)=>{update=data.$set;return query({_id:record,...update})};res=response();await admin.update({params:{resource:'companies',id},body:{companyName:'Northstar',foundedYear:'2018'}},res);assert.equal(update.foundedYear,2018);
+ Application.findByIdAndUpdate=Contact.findByIdAndUpdate=(record,data)=>{update=data.$set;return query({_id:record,...update})};
+ for(const [resource,status]of [['applications','accepted'],['contacts','resolved']]){res=response();await admin.update({params:{resource,id},body:{status}},res);assert.equal(update.status,status);assert.equal(res.code,200);}
+ res=response();await admin.update({params:{resource:'applications',id},body:{status:'invalid'}},res);assert.equal(res.code,400);
+ let projection;User.find=filter=>{assert.ok(filter.role);if(filter.$or)assert.doesNotThrow(()=>new RegExp(filter.$or[0].name.$regex));return query([],value=>projection=value)};User.countDocuments=async()=>0;
+ res=response();await admin.list({params:{resource:'users'},query:{search:'[.*',page:'-10'}},res);assert.equal(res.body.page,1);assert.ok(!projection.includes('password')&&!projection.includes('otp'));
+ let account={_id:actor,name:'Admin',email:'admin@example.com',role:'admin',password:'secret',otp:{otp:'123456',otpExpiry:Date.now()+60000,attempts:0},comparePassword:async()=>true,generateAuthToken:()=> 'fixture',save:async()=>{}};
+ User.findOne=async()=>account;res=response();await users.loginUser({body:{email:account.email,password:'Password1!'}},res,error=>{throw error});assert.equal(res.body.success,true);assert.equal(res.body.user.password,undefined);assert.equal(res.body.user.otp,undefined);
+ res=response();await users.updateUserPass({body:{email:account.email,password:'Different2!'}},res);assert.equal(res.code,400);
+ res=response();await users.verifyPass({body:{email:account.email,otp:'123456'}},res);assert.equal(res.body.resetToken.length,64);const token=res.body.resetToken;assert.equal(account.resetPasswordTokenHash,crypto.createHash('sha256').update(token).digest('hex'));assert.equal(account.otp.otp,null);
+ User.hashPassword=async()=> 'new-hash';let used=false;User.findOneAndUpdate=async(filter,data)=>{if(used)return null;assert.equal(filter.resetPasswordTokenHash,account.resetPasswordTokenHash);assert.ok(data.$unset.resetPasswordTokenHash);used=true;return account};
+ res=response();await users.updateUserPass({body:{email:account.email,password:'Different2!',resetToken:token}},res);assert.equal(res.body.success,true);res=response();await users.updateUserPass({body:{email:account.email,password:'Different2!',resetToken:token}},res);assert.equal(res.code,400);
+ console.log('PASS: admin model/login, no public admin signup, live database role/suspension checks, protected admin accounts, edit/action validation, job remove/restore, application/enquiry statuses, safe paginated list projection, OTP-verified single-use password reset. No database writes.');
+});

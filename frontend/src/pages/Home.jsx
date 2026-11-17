@@ -156,7 +156,7 @@ export const Home = () => {
             {[
               [
                 "How do I apply for a job?",
-                "Open a listing and sign in as a jobseeker to apply. Complete your profile and upload your resume so recruiters can review your experience.",
+                "Open a listing and sign in as a jobseeker to apply. Complete your profile and upload your resume so companies can review your experience.",
               ],
               [
                 "Where can I track my applications?",
@@ -167,8 +167,8 @@ export const Home = () => {
                 "Yes. Enter a city or Remote in the job search, or choose one of the location options in Browse jobs.",
               ],
               [
-                "How do recruiters post a job?",
-                "Register as a recruiter, create a company profile, then add a listing from your jobs dashboard.",
+                "How do companies post a job?",
+                "Register as a company, create a company profile, then add a listing from your jobs dashboard.",
               ],
             ].map(([title, content]) => (
               <Accordian key={title} title={title} content={content} />

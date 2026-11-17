@@ -42,7 +42,7 @@ export const JobseekerDashboard = () => {
         .length,
       Icon: Clock3,
       status: "pending",
-      note: "Awaiting a recruiter decision",
+      note: "Awaiting a company decision",
     },
     {
       title: "Accepted",
@@ -50,7 +50,7 @@ export const JobseekerDashboard = () => {
         .length,
       Icon: CircleCheck,
       status: "accepted",
-      note: "Marked accepted by recruiters",
+      note: "Marked accepted by companies",
     },
     {
       title: "Not selected",
@@ -257,7 +257,7 @@ export const JobseekerDashboard = () => {
             <p>
               {user.profile?.resume
                 ? "Keep your resume current as your experience grows."
-                : "Add a resume to your profile so recruiters can learn more about your work."}
+                : "Add a resume to your profile so companies can learn more about your work."}
             </p>
             <Link className="js-inline-link" to="/jobseeker/profile">
               Manage your resume

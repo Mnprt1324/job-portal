@@ -68,9 +68,9 @@ export const getAllJobs = (options = {}) => {
   );
 };
 
-//fecthing all company created by recuriter
+// Company profiles owned by the signed-in account.
 
-export const getAllRecurCompanied = () => {
+export const getOwnedCompaniesApi = () => {
   return api.post(`/company/get`, {}, { withCredentials: true });
 };
 
@@ -81,10 +81,10 @@ export const updateCompanyProfileApi = (data, id) => {
   });
 };
 
-// fecthing all job create by admin(recur) GetAllAdminJobs
+// Job listings owned by the signed-in company account.
 
-export const GetAllJobsCrtByRec = () => {
-  return api.get(`/job/getAllrecJob`, { withCredentials: true });
+export const getCompanyJobsApi = () => {
+  return api.get(`/job/company/jobs`, { withCredentials: true });
 };
 
 // fecthing all applied job by user
@@ -119,6 +119,9 @@ export const deleteJobApiCall = (id) => api.delete(`/job/deleteJob/${id}`, { wit
 export const getCompanySettingsApi = () => api.get('/users/company/settings');
 export const updateCompanySettingsApi = (data) => api.patch('/users/company/settings', data);
 export const changePasswordApi = (data) => api.post('/users/password/change', data);
+export const getAdminOverviewApi = () => api.get('/admin/overview');
+export const getAdminRecordsApi = (resource, params) => api.get(`/admin/${resource}`, {params});
+export const updateAdminRecordApi = (resource,id,data) => api.patch(`/admin/${resource}/${id}`,data);
 
 export const applyJobApiCall = (id, data = {}) => {
   return api.post(`/applications/apply/${id}`, data, { withCredentials: true });

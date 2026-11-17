@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ArrowUpRight, BriefcaseBusiness, Building2, Users } from "lucide-react";
-import { GetAllJobsCrtByRec, getAllRecurCompanied } from "../../API/api";
+import { getCompanyJobsApi, getOwnedCompaniesApi } from "../../API/api";
 import "./CompanyWorkspace.css";
 
 const CompanyDashboardSkeleton = () => (
@@ -36,7 +36,7 @@ export const CompanyDashboard = () => {
     let active = true;
     setLoading(true);
     setError("");
-    Promise.all([GetAllJobsCrtByRec(), getAllRecurCompanied()])
+    Promise.all([getCompanyJobsApi(), getOwnedCompaniesApi()])
       .then(([jobs, companies]) => {
         if (active) setData({ jobs: jobs.data.jobs || [], companies: companies.data.companies || [] });
       })

@@ -65,7 +65,7 @@ module.exports.getApplicants = async (req, res) => {
     try {
         const jobId = req.params.id;
         console.log(jobId);
-        const job = await jobModel.findById(jobId).populate({
+        const job = await jobModel.findOne({_id:jobId,postedBy:req.user._id}).populate({
             path:'applicants',
             options:{sort:{createdAt:-1}},
             populate:{
@@ -90,14 +90,15 @@ module.exports.updateStatus = async (req, res) => {
         const { status } = req.body;
         const applicationId = req.params.id;
 
-        if (!status) {
+        if (typeof status !== 'string' || !['pending','accepted','rejected'].includes(status.toLowerCase())) {
             return res.status(400).json({ message: "Status is required", success: false });
         }
 
-        const application = await applicationModel.findById(applicationId);
+        const application = await applicationModel.findById(applicationId).populate('job','postedBy');
         if (!application) {
             return res.status(404).json({ message: "Application not found.", success: false });
         }
+        if (String(application.job?.postedBy) !== String(req.user._id)) return res.status(403).json({success:false,message:'Access denied.'});
 
         application.status = status.toLowerCase();
         await application.save(); 

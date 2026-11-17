@@ -1,3 +1,5 @@
+const crypto = require("node:crypto");
+const publicAccount = user => {const data = user.toObject ? user.toObject() : {...user};delete data.password;delete data.otp;delete data.resetPasswordTokenHash;delete data.resetPasswordExpires;return data;};
 const userModel = require('../models/user.model');
 const sendmail = require('../utils/nodemailer');
 const otpGenerator = require("otp-generator");
@@ -7,7 +9,7 @@ const cloudinary = require("../utils/cloudinary");
 
 module.exports.registerUser = async (req, res, next) => {
     const { name, email, password, role } = req.body;
-    const allowedRoles = ["jobseeker", "recruiter", "company"];
+    const allowedRoles = ["jobseeker", "company"];
     if (!name || !email || !password || !role) {
         return res.status(404).json({ message: "something went wrong...", success: false })
     }
@@ -23,7 +25,7 @@ module.exports.registerUser = async (req, res, next) => {
 
     const user = await userModel.create({ name, email, password: hashPassword, role });;
     const token = user.generateAuthToken();
-    return res.status(201).json({ token, user, success: true });
+    return res.status(201).json({ token, user: publicAccount(user), success: true });
 }
 
 //loginUser
@@ -37,6 +39,8 @@ module.exports.loginUser = async (req, res, next) => {
     if (!user) {
         return res.status(400).json({ message: 'Invalid email or password.', success: false });
     }
+    if (!["company","jobseeker","admin"].includes(user.role)) return res.status(403).json({success:false,message:"This account type is no longer supported."});
+    if (user.isSuspended) return res.status(403).json({success:false,message:"Your account has been suspended. Contact support for help."});
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
@@ -44,7 +48,7 @@ module.exports.loginUser = async (req, res, next) => {
     }
 
         const token = user.generateAuthToken();
-        return res.status(200).json({ token, user, success: true, message: "Login successful." });
+        return res.status(200).json({ token, user: publicAccount(user), success: true, message: "Login successful." });
     } catch (error) {
         return next(error);
     }
@@ -71,12 +75,14 @@ module.exports.forgetUserPassword = async (req, res) => {
         const otp = otpGenerator.generate(6, { digits: true, lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
 
         isUserExist.otp.otp = otp;
-        isUserExist.otpExpiry = Date.now() + 2 * 60 * 1000;
+        isUserExist.otp.otpExpiry = Date.now() + 2 * 60 * 1000;
+        isUserExist.otp.attempts = 0;
+        isUserExist.resetPasswordTokenHash = undefined;
+        isUserExist.resetPasswordExpires = undefined;
 
         await isUserExist.save();
 
-        console.log("Generated OTP:", otp);
-        sendmail(otp, email);
+        await sendmail(otp, email);
 
         return res.status(200).json({ message: "OTP sent to your email", success: true });
     } catch (error) {
@@ -85,48 +91,31 @@ module.exports.forgetUserPassword = async (req, res) => {
     }
 };
 
-module.exports.verifyPass = async (req, res) => {
+module.exports.verifyPass = async (req,res) => {
     try {
-        const { email, otp } = req.body;
-        const user = await userModel.findOne({ email });
-        if (!user) return res.status(400).json({ message: "User not Found", success: false });
-        if (user.otp.otp !== otp || user.otpExpiry < Date.now()) {
-            return res.status(400).json({ message: "Invalid or expired OTP" });
-        }
-        user.otp.otp = null;
-        user.otpExpiry = null;
-        await user.save();
-        return res.status(200).json({ message: "OTP verified successfully", success: true });
-    } catch (error) {
-        console.log("error", error);
-    }
-}
-
-
-module.exports.updateUserPass = async (req, res) => {
-    try {
-        const { password, email } = req.body;
-
-        if (!password) {
-            return res.status(400).json({ message: "Password is required", success: false });
-        }
-
-        const user = await userModel.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: "User not found", success: false });
-        }
-
-        const hashPassword = await bcrypt.hash(password, 10);
-        user.password = hashPassword;
-        await user.save();
-
-        return res.status(200).json({ message: "Password changed successfully", success: true });
-    } catch (error) {
-        console.log("Error updating password:", error);
-        return res.status(500).json({ message: "Internal Server Error", success: false });
-    }
+        const {email,otp}=req.body;
+        if(typeof email !== 'string'||typeof otp !== 'string'||!/^\d{6}$/.test(otp))return res.status(400).json({success:false,message:'Enter a valid reset code.'});
+        const user=await userModel.findOne({email});
+        if(!user||!user.otp?.otp||!user.otp.otpExpiry||user.otp.otpExpiry<Date.now()||(user.otp.attempts||0)>=5)return res.status(400).json({success:false,message:'Invalid or expired reset code.'});
+        if(user.otp.otp!==otp){user.otp.attempts=(user.otp.attempts||0)+1;await user.save();return res.status(400).json({success:false,message:'Invalid or expired reset code.'});}
+        const resetToken=crypto.randomBytes(32).toString('hex');
+        user.otp.otp=null;user.otp.otpExpiry=null;
+        user.resetPasswordTokenHash=crypto.createHash('sha256').update(resetToken).digest('hex');
+        user.resetPasswordExpires=new Date(Date.now()+15*60*1000);await user.save();
+        return res.json({success:true,message:'Reset code verified.',resetToken});
+    }catch{return res.status(500).json({success:false,message:'Unable to verify reset code. Please try again.'});}
 };
-
+module.exports.updateUserPass = async (req,res) => {
+    try {
+        const {email,password,resetToken}=req.body;
+        if(typeof resetToken!=='string'||!/^[a-f0-9]{64}$/.test(resetToken)||typeof email!=='string')return res.status(400).json({success:false,message:'Verify your reset code first.'});
+        if(typeof password!=='string'||password.length<8||password.length>128||!/[A-Z]/.test(password)||!/[a-z]/.test(password)||!/\d/.test(password)||!/[^a-zA-Z0-9]/.test(password))return res.status(400).json({success:false,message:'Use a strong password with 8-128 characters.'});
+        const hashedPassword=await userModel.hashPassword(password);
+        const user=await userModel.findOneAndUpdate({email,resetPasswordTokenHash:crypto.createHash('sha256').update(resetToken).digest('hex'),resetPasswordExpires:{$gt:new Date()}},{$set:{password:hashedPassword},$unset:{resetPasswordTokenHash:1,resetPasswordExpires:1}},{new:true});
+        if(!user)return res.status(400).json({success:false,message:'Your reset link has expired. Request a new code.'});
+        return res.json({success:true,message:'Password changed successfully.'});
+    }catch{return res.status(500).json({success:false,message:'Unable to reset password. Please try again.'});}
+};
 
 module.exports.updateUserProfile = async (req, res) => {
     try {

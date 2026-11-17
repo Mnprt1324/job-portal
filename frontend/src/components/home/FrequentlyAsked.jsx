@@ -2,11 +2,11 @@ import { Accordian } from "./Accordian";
 import { FiMessageCircle } from "react-icons/fi";
 export const FrequentlyAsked = () => {
   const faqs = {
-    recruiters: [
+    companies: [
       {
         question: "How do I post jobs on ZipJob?",
         answer:
-          "You can create a company profile by signing up as a 'Recruiter' and then create a job post under the 'Jobs' dashboard referring to any company you registered.",
+          "You can create a company profile by signing up as a 'Company' and then create a job post under the 'Jobs' dashboard referring to any company you registered.",
       },
       {
         question: "Is posting a job free?",
@@ -21,7 +21,7 @@ export const FrequentlyAsked = () => {
       {
         question: "Can I delete a job post?",
         answer:
-          "Yes, you can delete your job post anytime from your recruiter dashboard.",
+          "Yes, you can delete your job post anytime from your company dashboard.",
       },
     ],
     jobSeekers: [
@@ -64,11 +64,11 @@ export const FrequentlyAsked = () => {
 
       {/* FAQ Sections */}
       <div className="grid grid-cols-1 gap-10 max-w-6xl md:grid-cols-2 mx-auto px-5">
-        {/* Recruiters Section */}
+        {/* Companies Section */}
         <div className="space-y-4">
-          <h2 className="text-2xl text-gray-950 font-semibold">For Recruiters</h2>
+          <h2 className="text-2xl text-gray-950 font-semibold">For Companies</h2>
           <div className="space-y-3">
-            {faqs.recruiters.map((faq, index) => (
+            {faqs.companies.map((faq, index) => (
               <Accordian key={index} title={faq.question} content={faq.answer} />
             ))}
           </div>

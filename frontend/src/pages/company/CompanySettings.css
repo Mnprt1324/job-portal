@@ -1,7 +1,7 @@
-.cs-page { display: grid; gap: 24px; }
+.cs-page { display: grid; gap: var(--company-gap, 16px); }
 .cs-page-heading h1 { font-size: clamp(26px,2.5vw,32px); font-weight: 500; line-height: 1.2; letter-spacing: -.035em; margin: 0 0 8px; }
 .cs-page-heading p { margin: 0; color: var(--p-muted); font-size: 14px; line-height: 1.6; }
-.cs-layout { display: grid; grid-template-columns: 220px minmax(0,1fr); align-items: start; gap: 24px; }
+.cs-layout { display: grid; grid-template-columns: 220px minmax(0,1fr); align-items: start; gap: var(--company-gap, 16px); }
 .cs-settings-nav { background: var(--p-surface); border: 1px solid var(--color-border); padding: 10px; border-radius: 12px; }
 .cs-settings-nav nav { display: grid; gap: 4px; }
 .cs-settings-nav nav button { display: flex; gap: 10px; align-items: center; width: 100%; min-height: 46px; padding: 10px 12px; font-size: 12px; text-align: left; border-radius: 7px; color: var(--p-muted); }
@@ -10,15 +10,15 @@
 .cs-settings-nav nav button svg { flex-shrink: 0; }
 .cs-settings-nav .cs-profile-link { display: flex; justify-content: space-between; border-top: 1px solid var(--color-border); padding: 14px 12px 4px; margin: 10px 0 0; font-size: 12px; }
 .cs-mobile-section { display: none; }
-.cs-content, .cs-aside, .cs-settings-fields { display: grid; gap: 24px; min-width: 0; }
+.cs-content, .cs-aside, .cs-settings-fields { display: grid; gap: var(--company-gap, 16px); min-width: 0; }
 .cs-settings-fields { border: 0; padding: 0; margin: 0; }
-.cs-panel { padding: 26px; background: var(--p-surface); border: 1px solid var(--color-border); border-radius: 12px; min-width: 0; scroll-margin-top: 20px; }
+.cs-panel { padding: var(--company-panel-padding, 20px); background: var(--p-surface); border: 1px solid var(--color-border); border-radius: 12px; min-width: 0; scroll-margin-top: 20px; }
 .cs-panel h2 { font-size: 18px; font-weight: 500; letter-spacing: -.02em; line-height: 1.4; margin: 0 0 8px; }
 .cs-panel p { margin: 0; color: var(--p-muted); font-size: 13px; line-height: 1.7; }
-.cs-section-heading { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 26px; }
+.cs-section-heading { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
 .cs-section-heading > svg { flex-shrink: 0; margin-top: 3px; color: var(--p-action); }
 .cs-panel > .cs-settings-fields > .cs-section-heading { margin-bottom: 0; }
-.cs-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 22px; }
+.cs-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
 .cs-wide { grid-column: 1 / -1; }
 .cs-field { min-width: 0; }
 .cs-field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 9px; }
@@ -52,7 +52,7 @@
 @media(max-width:767px) { .cs-layout { grid-template-columns: 1fr; } .cs-settings-nav { display: none; } .cs-mobile-section { display: block; } }
 @media(max-width:600px) {
   .cs-fields, .cs-aside { grid-template-columns: 1fr; }
-  .cs-panel { padding: 20px; }
+  .cs-panel { padding: var(--company-panel-padding, 20px); }
   .cs-save-row, .cs-password-options { flex-direction: column; align-items: stretch; }
   .cs-save-row > div:last-child > button { flex: 1; }
   .cs-password-options button { align-self: flex-start; }

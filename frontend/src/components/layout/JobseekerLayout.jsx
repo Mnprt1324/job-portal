@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import PropTypes from "prop-types";
 import { CompanySidebar } from "../company/CompanySidebar";
+import { AdminSidebar } from "../admin/AdminSidebar";
 import Cookies from "js-cookie";
 import { logoutUserApiCall } from "../../API/api";
 import { logoutUser } from "../../redux/authSlice";
@@ -36,7 +37,7 @@ export const JobseekerLayout = () => {
   if (user.role !== "jobseeker")
     return (
       <Navigate
-        to={user.role === "company" ? "/company/dashboard" : "/dashboard"}
+        to={user.role === "company" ? "/company/dashboard" : user.role === "admin" ? "/admin/dashboard" : "/login"}
         replace
       />
     );
@@ -49,11 +50,12 @@ const JobseekerWorkspace = () => {
   return <WorkspaceShell applications={applications} />;
 };
 
-export const WorkspaceShell = ({ company = false, applications = {} }) => {
+export const WorkspaceShell = ({ company = false, admin = false, applications = {} }) => {
   const user = useSelector((store) => store.auth.user);
-  const base = company ? "/company" : "/jobseeker";
-  const profilePath = company ? "/company/profile" : "/jobseeker/profile";
+  const base = admin ? "/admin" : company ? "/company" : "/jobseeker";
+  const profilePath = admin ? "/admin/dashboard" : company ? "/company/profile" : "/jobseeker/profile";
   const { pathname } = useLocation();
+  const messagesPage = company && pathname === "/company/messages";
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -145,8 +147,9 @@ export const WorkspaceShell = ({ company = false, applications = {} }) => {
     }
   };
   const initial = (user.name || "J").trim().slice(0, 1).toUpperCase();
-  const companyTitles = {dashboard: "Dashboard", jobs: "Jobs", interviews: "Interviews", profile: "Company profile", account: "Account", settings: "Settings"};
-  const title = company ? (companyTitles[pathname.split("/")[2]] || "Workspace") : pathname.endsWith("/applications")
+  const companyTitles = {dashboard: "Dashboard", jobs: "Jobs", interviews: "Interviews", profile: "Company profile", account: "Account", settings: "Settings", messages: "Messages"};
+  const adminTitles = {dashboard:"Overview",users:"Users",companies:"Companies",jobs:"Jobs",applications:"Applications",contacts:"Inbox"};
+  const title = admin ? (adminTitles[pathname.split("/")[2]] || "Admin") : company ? (companyTitles[pathname.split("/")[2]] || "Workspace") : pathname.endsWith("/applications")
     ? "My applications"
     : pathname.startsWith("/jobseeker/profile")
       ? "My profile"
@@ -156,7 +159,7 @@ export const WorkspaceShell = ({ company = false, applications = {} }) => {
           ? "Job details"
           : "Dashboard";
   return (
-    <div className={`js-workspace ${company ? "company-workspace" : ""}`}>
+    <div className={`js-workspace ${company || admin ? "company-workspace" : ""} ${admin ? "admin-workspace" : ""}`}>
       <a className="skip-link" href="#jobseeker-main">
         Skip to dashboard
       </a>
@@ -176,7 +179,7 @@ export const WorkspaceShell = ({ company = false, applications = {} }) => {
         ref={drawerRef}
         id="jobseeker-navigation"
         className={`js-sidebar ${menuOpen ? "is-open" : ""}`}
-        aria-label={company ? "Company navigation" : "Jobseeker navigation"}
+        aria-label={admin ? "Admin navigation" : company ? "Company navigation" : "Jobseeker navigation"}
       >
         <div className="js-brand-row">
           <Link to={`${base}/dashboard`} className="js-brand">
@@ -197,8 +200,8 @@ export const WorkspaceShell = ({ company = false, applications = {} }) => {
             <X size={21} />
           </button>
         </div>
-        <p className="js-sidebar-label">Your workspace</p>
-        {company ? <CompanySidebar /> : <nav aria-label="Jobseeker workspace">
+        <p className="js-sidebar-label">{admin ? "Platform administration" : "Your workspace"}</p>
+        {admin ? <AdminSidebar /> : company ? <CompanySidebar /> : <nav aria-label="Jobseeker workspace">
           <NavLink to="/jobseeker/dashboard">
             <LayoutDashboard size={19} aria-hidden="true" />
             Dashboard
@@ -224,7 +227,7 @@ export const WorkspaceShell = ({ company = false, applications = {} }) => {
           </NavLink>
         </nav>}
       </aside>
-      <div className="js-workspace-body" inert={menuOpen}>
+      <div className={`js-workspace-body ${messagesPage ? "js-messages-workspace" : ""}`} inert={menuOpen}>
         <header className="js-topbar">
           <div>
             <button
@@ -244,12 +247,12 @@ export const WorkspaceShell = ({ company = false, applications = {} }) => {
           </div>
           <div>
             <Link
-              to={`${base}/jobs`}
+              to={admin ? "/admin/users" : `${base}/jobs`}
               className="js-topbar-search"
-              aria-label={company ? "Manage jobs" : "Find jobs"}
+              aria-label={admin ? "Manage users" : company ? "Manage jobs" : "Find jobs"}
             >
               <Search size={19} />
-              <span>{company ? "Manage jobs" : "Find your next role"}</span>
+              <span>{admin ? "Manage users" : company ? "Manage jobs" : "Find your next role"}</span>
             </Link>
             <div className="js-account" ref={accountRef}>
             <button type="button" ref={accountButtonRef} className="js-topbar-account" aria-label={user.name || "Your profile"} aria-expanded={accountOpen} aria-controls="jobseeker-account-menu" onClick={() => setAccountOpen((open) => !open)}>
@@ -258,7 +261,7 @@ export const WorkspaceShell = ({ company = false, applications = {} }) => {
               <ChevronDown size={15} aria-hidden="true" />
             </button>
             {accountOpen && <div id="jobseeker-account-menu" className="js-account-dropdown" aria-label="Account options">
-              <Link to={profilePath} onClick={() => setAccountOpen(false)}><UserRound size={18} aria-hidden="true" />{company ? "Company profile" : "My profile"}</Link>
+              <Link to={profilePath} onClick={() => setAccountOpen(false)}><UserRound size={18} aria-hidden="true" />{admin ? "Admin overview" : company ? "Company profile" : "My profile"}</Link>
               <Link to="/contact" onClick={() => setAccountOpen(false)}><CircleHelp size={18} aria-hidden="true" />Help & support</Link>
               <button type="button" onClick={logout} disabled={loggingOut}><LogOut size={18} aria-hidden="true" />{loggingOut ? "Signing out..." : "Sign out"}</button>
               {logoutError && <p className="js-logout-error" role="alert">{logoutError}</p>}
@@ -269,16 +272,16 @@ export const WorkspaceShell = ({ company = false, applications = {} }) => {
         <main id="jobseeker-main" className="js-main" tabIndex={-1}>
           <Outlet context={{ user, ...applications }} />
         </main>
-        <div className="js-workspace-note">
-          {company ? "Your team, your next chapter." : "Your career, your direction."}
+        {!messagesPage && <div className="js-workspace-note">
+          {admin ? "ZipJob administration" : company ? "Your team, your next chapter." : "Your career, your direction."}
           <Link to="/contact">
             Need help?
             <ArrowUpRight size={13} aria-hidden="true" />
           </Link>
-        </div>
+        </div>}
       </div>
     </div>
   );
 };
 
-WorkspaceShell.propTypes = { company: PropTypes.bool, applications: PropTypes.object };
+WorkspaceShell.propTypes = { company: PropTypes.bool, admin: PropTypes.bool, applications: PropTypes.object };

@@ -1,18 +1,18 @@
 .cp-page { display: grid; gap: 20px; }
-.cp-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.cp-page-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--company-gap, 16px); }
 .cp-page-heading h1 { font-size: clamp(26px, 2.5vw, 32px); font-weight: 500; line-height: 1.2; letter-spacing: -.035em; margin: 0 0 6px; }
 .cp-page-heading h1:focus { outline: none; }
 .cp-page-heading p:last-child { color: var(--p-muted); font-size: 14px; line-height: 1.6; margin: 0; }
 .cp-page .btn-primary, .cp-page .btn-secondary { display: inline-flex; gap: 10px; justify-content: center; align-items: center; min-height: 46px; font-size: 13px; white-space: nowrap; }
-.cp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; align-items: start; gap: 24px; }
-.cp-primary, .cp-editor, .cp-aside { display: grid; gap: 24px; min-width: 0; }
+.cp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; align-items: start; gap: var(--company-gap, 16px); }
+.cp-primary, .cp-editor, .cp-aside { display: grid; gap: var(--company-gap, 16px); min-width: 0; }
 .cp-editor { border: 0; padding: 0; margin: 0; }
-.cp-panel, .cp-state { padding: 28px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--p-surface); min-width: 0; }
+.cp-panel, .cp-state { padding: var(--company-panel-padding, 20px); border: 1px solid var(--color-border); border-radius: 12px; background: var(--p-surface); min-width: 0; }
 .cp-panel h2 { font-size: 18px; font-weight: 500; margin: 0 0 10px; letter-spacing: -.02em; }
 .cp-panel p { color: var(--p-muted); font-size: 13px; line-height: 1.7; margin: 0; }
-.cp-section-heading { display: flex; gap: 16px; margin-bottom: 28px; }
+.cp-section-heading { display: flex; gap: 16px; margin-bottom: 18px; }
 .cp-section-heading > span { color: var(--p-action); background: var(--color-blue-50); font-size: 12px; border-radius: 8px; width: 32px; height: 32px; display: grid; place-items: center; flex-shrink: 0; }
-.cp-fields { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 22px 20px; }
+.cp-fields { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px 16px; }
 .cp-wide { grid-column: 1 / -1; }
 .cp-field { min-width: 0; }
 .cp-field label, .cp-logo-editor label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 9px; }
@@ -21,7 +21,7 @@
 .cp-field input::placeholder, .cp-field textarea::placeholder { color: var(--p-muted); opacity: .8; }
 .cp-field input:focus-visible, .cp-field select:focus-visible, .cp-field textarea:focus-visible, .cp-logo-editor input:focus-visible { outline: 2px solid var(--p-action); outline-offset: 3px; }
 .cp-field [aria-invalid=true] { border-color: #b42318; }
-.cp-logo-editor { display: flex; gap: 20px; align-items: center; padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--color-border); }
+.cp-logo-editor { display: flex; gap: 20px; align-items: center; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--color-border); }
 .cp-logo-editor > div:last-child { min-width: 0; }
 .cp-logo-editor input { display: block; width: 100%; max-width: 300px; font-size: 12px; min-height: 36px; }
 .cp-logo-editor input::file-selector-button { border: 1px solid var(--color-border); border-radius: 6px; background: var(--p-bg); padding: 8px 12px; margin-right: 10px; color: var(--p-ink); cursor: pointer; }
@@ -37,12 +37,12 @@
 .cp-progress-title { display: flex; gap: 12px; justify-content: space-between; align-items: start; }
 .cp-progress-title h2 { font-size: 16px; }
 .cp-progress-title > svg { color: var(--p-action); flex-shrink: 0; }
-.cp-progress-value { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 24px 0 16px; }
+.cp-progress-value { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 18px 0 12px; }
 .cp-progress-value strong { font-size: 32px; font-weight: 500; }
 .cp-progress-value span { font-size: 11px; color: var(--p-muted); }
 .cp-progress { height: 6px; border-radius: 8px; background: var(--p-bg); overflow: hidden; }
 .cp-progress > span { display: block; height: 100%; background: var(--p-action); }
-.cp-checklist { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 18px; }
+.cp-checklist { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 14px; }
 .cp-checklist li, .cp-checklist li > span { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; color: var(--p-muted); }
 .cp-checklist small { font-size: 10px; white-space: nowrap; }
 .cp-checklist svg { color: #17643b; }
@@ -55,7 +55,7 @@
 .cp-identity-links, .cp-social-links { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; font-size: 12px; color: var(--p-muted); }
 .cp-page a { color: var(--p-action); display: inline-flex; align-items: center; gap: 8px; min-height: 44px; overflow-wrap: anywhere; }
 .cp-panel .cp-prose { margin-top: 18px; white-space: pre-line; overflow-wrap: anywhere; font-size: 14px; }
-.cp-facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; padding-top: 24px; margin: 24px 0 0; border-top: 1px solid var(--color-border); }
+.cp-facts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--company-gap, 16px); padding-top: 18px; margin: 18px 0 0; border-top: 1px solid var(--color-border); }
 .cp-facts dt { font-size: 12px; color: var(--p-muted); margin-bottom: 8px; }
 .cp-facts dd { font-size: 14px; margin: 0; overflow-wrap: anywhere; }
 .cp-state { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
@@ -76,7 +76,7 @@
 @media (max-width: 600px) {
   .cp-page-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
   .cp-fields, .cp-aside, .cp-facts { grid-template-columns: 1fr; }
-  .cp-panel { padding: 20px; }
+  .cp-panel { padding: var(--company-panel-padding, 20px); }
   .cp-logo-editor, .cp-identity { align-items: flex-start; flex-direction: column; }
   .cp-form-actions { align-items: stretch; flex-direction: column; }
   .cp-form-actions > div > button { flex: 1; }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Building2, Check, Loader2, Pencil, Save } from "lucide-react";
-import { createCompanyApiCall, getAllRecurCompanied, updateCompanyProfileApi } from "../../API/api";
+import { createCompanyApiCall, getOwnedCompaniesApi, updateCompanyProfileApi } from "../../API/api";
 import "./CompanyProfile.css";
 
 const defaults = { companyName: "", tagline: "", industry: "", companySize: "", foundedYear: "", location: "", website: "", contactEmail: "", description: "", benefits: "", linkedin: "", twitter: "", instagram: "", github: "" };
@@ -44,7 +44,7 @@ export const CompanyProfile = () => {
   useEffect(() => {
     let active = true;
     setLoading(true); setLoadError("");
-    getAllRecurCompanied().then(({data}) => {
+    getOwnedCompaniesApi().then(({data}) => {
       if (!data.success) throw Error();
       if (active) { const list = Array.isArray(data.companies) ? data.companies : []; setCompanies(list); selectCompany(list[0] || null); }
     }).catch(() => { if (active) setLoadError("We could not load your company profile. Please try again."); })

@@ -301,7 +301,7 @@ export const JobApply = () => {
             ) : (
               <>
                 <p className="jd-apply-note">
-                  Your profile and resume help the recruiter get to know your
+                  Your profile and resume help the company get to know your
                   experience.
                 </p>
                 {jobseeker && applications.error ? (

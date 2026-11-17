@@ -1,7 +1,7 @@
 const jobModel = require("../models/job.model");
 const mongoose = require("mongoose");
 
-const canManageJobs = (user) => ["recruiter", "company"].includes(user?.role);
+const canManageJobs = (user) => user?.role === "company";
 
 const readOptionalJobDetails = (body) => {
   const data = {};
@@ -127,17 +127,17 @@ module.exports.getJobById = async (req, res) => {
 }
 
 
-//recruiter ne kitne jobs create kare hai
+// Jobs owned by the signed-in company account.
 
-module.exports.recruiterJobCreated = async (req, res) => {
+module.exports.getCompanyJobs = async (req, res) => {
   try {
-    const recruiterId = req.user._id;
-    const jobs = await jobModel.find({ postedBy: recruiterId, deletedAt: null }).populate("company").sort({ createdAt: -1 });
+    const companyUserId = req.user._id;
+    const jobs = await jobModel.find({ postedBy: companyUserId, deletedAt: null }).populate("company").sort({ createdAt: -1 });
     if (!jobs) res.status(404).json({ message: "Jobs not found", success: false });
     return res.status(200).json({ jobs, message: "fetch scussfully", success: true });
   } catch (error) {
-    console.log("error fetching recruiter jobs", error);
-    res.status(404).json({ message: "server error :recruiter" });
+    console.log("error fetching company jobs", error);
+    res.status(404).json({ message: "server error :company" });
   }
 }
 
@@ -168,7 +168,7 @@ module.exports.UpdateJob = async (req, res) => {
     return res.status(200).json({ updateJob, message: "Update scussfully", success: true });
   } catch (error) {
     console.log("update Job", error);
-    res.status(404).json({ message: "server error :recruiter" });
+    res.status(404).json({ message: "server error :company" });
   }
 }
 

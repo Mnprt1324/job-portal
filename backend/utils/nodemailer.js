@@ -35,14 +35,9 @@ const sendmail = (otp, email) => {
       `,
     };
     
-  tranport.sendMail(mailOptions,(error)=>{
-     if(error){
-        console.log(error)
-        throw new Error("failed to send email");
-     }
-  })
+  return tranport.sendMail(mailOptions);
    } catch (error) {
-     console.log(error.message);
+     throw error;
    }
 
 }

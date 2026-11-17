@@ -13,8 +13,8 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./CompanyJobs.css";
 import {
-  GetAllJobsCrtByRec,
-  getAllRecurCompanied,
+  getCompanyJobsApi,
+  getOwnedCompaniesApi,
   postJobApiCall,
   updateJobApiCall,
 } from "../../../API/api";
@@ -56,8 +56,8 @@ export const CompanyJobs = () => {
 
     try {
       const [companiesResponse, jobsResponse] = await Promise.all([
-        getAllRecurCompanied(),
-        GetAllJobsCrtByRec(),
+        getOwnedCompaniesApi(),
+        getCompanyJobsApi(),
       ]);
 
       if (request !== requestRef.current) return;

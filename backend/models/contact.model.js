@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const contactSchema = new mongoose.Schema(
   {
+    status: { type: String, enum: ['new','read','resolved'], default: 'new' },
     name: {
       type: String,
       required: true,

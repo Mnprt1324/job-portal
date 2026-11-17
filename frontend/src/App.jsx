@@ -15,21 +15,17 @@ import "react-toastify/dist/ReactToastify.css";
 import { JobApply } from "./pages/JobApply";
 import { Profile } from "./pages/Profile";
 import { ProfileUpdate } from "./components/ProfileUpdate";
-import { Companies } from "./pages/Companies";
-import { Job } from "./pages/Job";
-import { CreateCompany } from "./pages/CreateCompany";
-import { UpdateCompanyProfile } from "./pages/UpdateCompanyProfile";
-import { JobCreate } from "./pages/JobCreate";
 import { HomeEntry } from "./utils/HomeEntry";
 import { JobseekerLayout } from "./components/layout/JobseekerLayout";
 import { JobseekerDashboard } from "./pages/jobseeker/JobseekerDashboard";
 import { JobseekerApplications } from "./pages/jobseeker/JobseekerApplications";
 import { Contact } from "./pages/Contact";
-import { UpdateJob } from "./pages/UpdateJob";
-import { Applicants } from "./pages/Applicants";
-import { RecruiterDashboard } from "./pages/RecruiterDashboard";
 import { CompanyDashboard } from "./pages/company/CompanyDashboard";
 import { CompanySettings } from "./pages/company/CompanySettings";
+import { CompanyMessages } from "./pages/company/CompanyMessages";
+import { AdminLayout } from "./components/layout/AdminLayout";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminRecords } from "./pages/admin/AdminRecords";
 import { CompanyBlankPage } from "./pages/company/CompanyBlankPage";
 import { CompanyProfile } from "./components/company/CompanyProfile";
 import { CompanyJobs } from "./components/company/jobs/jobs";
@@ -37,13 +33,17 @@ import { PopularJobs } from "./components/home/PopularJobs";
 import { NewJobs } from "./components/home/NewJobs";
 import { OldJobs } from "./components/home/OldJobs";
 import PrivateRoute from "./utils/PrivateRoute";
-import { RoleBasedRoute } from "./utils/RoleBasedRoute";
 import { CompanyRoute } from "./utils/CompanyRoute";
 import { Super } from "./utils/Super";
 
 export const App = () => {
   const router = createBrowserRouter([
     { path: "*", element: <NotFound /> },
+    {path:"/admin",element:<AdminLayout/>,children:[
+      {index:true,element:<Navigate to="/admin/dashboard" replace/>},
+      {path:"dashboard",element:<AdminDashboard/>},
+      ...['users','companies','jobs','applications','contacts'].map(resource=>({path:resource,element:<AdminRecords key={resource} resource={resource}/>})),
+    ]},
         {
           element: <CompanyRoute />,
           children: [
@@ -54,6 +54,7 @@ export const App = () => {
             { path: "company/profile", element: <CompanyProfile /> },
             { path: "company/account", element: <Navigate to="/company/profile" replace /> },
             { path: "company/settings", element: <CompanySettings /> },
+            { path: "company/messages", element: <CompanyMessages /> },
           ],
         },
     { path: "/jobseeker", element: <JobseekerLayout />, children: [
@@ -113,19 +114,7 @@ export const App = () => {
             </PrivateRoute>
           ),
         },
-        {
-          element: <RoleBasedRoute />, 
-          children: [
-            { path: "dashboard", element: <RecruiterDashboard /> },
-            { path: "companies", element: <Companies /> },
-            { path: "companies/create", element: <CreateCompany /> },
-            { path: "companies/update/profile/:id", element: <UpdateCompanyProfile /> },
-            { path: "job/create", element: <JobCreate /> },
-            { path: "jobs", element: <Job /> },
-            { path: "jobs/update/:id", element: <UpdateJob /> },
-            { path: "jobs/applicants/:id", element: <Applicants /> },
-          ],
-        },
+
 
       ],
     },

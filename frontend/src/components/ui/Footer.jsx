@@ -18,7 +18,7 @@ const directories = [
     title: "Your account",
     links: [
       ["Sign in", "/login"],
-      ["Join as a recruiter", "/register"],
+      ["Join as a company", "/register"],
       ["Reset your password", "/forget"],
     ],
   },

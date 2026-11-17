@@ -5,11 +5,13 @@ import {
   Gauge,
   CalendarCheck,
   Settings,
+  MessageSquare,
 } from "lucide-react";
 
 const navItems = [
   { path: "/company/dashboard", label: "Dashboard", icon: Gauge },
   { path: "/company/jobs", label: "Jobs", icon: BriefcaseBusiness },
+  { path: "/company/messages", label: "Messages", icon: MessageSquare },
   { path: "/company/interviews", label: "Interviews", icon: CalendarCheck },
   { path: "/company/profile", label: "Company Profile", icon: Building2 },
   { path: "/company/settings", label: "Settings", icon: Settings },

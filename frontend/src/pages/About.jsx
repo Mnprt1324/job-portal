@@ -27,7 +27,7 @@ const audiences = {
       [
         FileText,
         "Build your profile",
-        "Add your skills, experience, and resume so recruiters can get to know your work.",
+        "Add your skills, experience, and resume so companies can get to know your work.",
       ],
       [
         Send,
@@ -39,7 +39,7 @@ const audiences = {
     href: "/findJob",
     panelTitle: "Your next move, in three steps.",
   },
-  recruiter: {
+  company: {
     eyebrow: "For the team you are building",
     title: "Make room for\nyour next great hire.",
     description:
@@ -58,10 +58,10 @@ const audiences = {
       [
         Users,
         "Review your applicants",
-        "Read applications and update their status from your recruiter dashboard.",
+        "Read applications and update their status from your company dashboard.",
       ],
     ],
-    action: "Create a recruiter account",
+    action: "Create a company account",
     href: "/register",
     panelTitle: "From a new role to a new teammate.",
   },
@@ -117,7 +117,7 @@ export const About = () => {
             <p>
               ZipJob puts job discovery, profiles, and applications in one
               place. Jobseekers can explore their options and keep track of
-              their progress. Recruiters can publish openings and review
+              their progress. Companies can publish openings and review
               applicants.
             </p>
             <p>
@@ -151,8 +151,8 @@ export const About = () => {
               </button>
               <button
                 type="button"
-                aria-pressed={audience === "recruiter"}
-                onClick={() => setAudience("recruiter")}
+                aria-pressed={audience === "company"}
+                onClick={() => setAudience("company")}
               >
                 Hiring talent
               </button>

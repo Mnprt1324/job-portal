@@ -36,6 +36,7 @@ app.use("/job",jobRoutes);
 app.use("/company",companyRoutes)
 app.use("/applications",applicationRoutes)
 app.use("/contactUs",contactRouts)
+app.use("/admin",require('./routes/admin.routes'));
 //Server start
 const PORT=process.env.PORT ||5000;
 module.exports=app;

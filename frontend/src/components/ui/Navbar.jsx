@@ -111,10 +111,10 @@ export const Navbar = () => {
     setShowProfileDropdown(false);
   };
 
-  const dashboardPath = user?.role === "company" ? "/company/dashboard" : user?.role === "recruiter" ? "/dashboard" : "/jobseeker/dashboard";
+  const dashboardPath = user?.role === "admin" ? "/admin/dashboard" : user?.role === "company" ? "/company/dashboard" : "/jobseeker/dashboard";
 
-  const isRecruiter = ["recruiter", "company"].includes(user?.role);
-  const navigationItems = isRecruiter ? [] : NAV_ITEMS.map(item => user?.role === "jobseeker" && item.path === "/" ? { ...item, path: "/jobseeker/dashboard", label: "Dashboard" } : item);
+  const isCompany = ["company","admin"].includes(user?.role);
+  const navigationItems = isCompany ? [] : NAV_ITEMS.map(item => user?.role === "jobseeker" && item.path === "/" ? { ...item, path: "/jobseeker/dashboard", label: "Dashboard" } : item);
 
   const avatarSrc = user?.profile?.profileImg || FALLBACK_AVATAR;
   const displayName = user?.name || user?.fullname || "User";

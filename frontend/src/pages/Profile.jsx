@@ -160,9 +160,7 @@ export const Profile = () => {
           <span className="pp-role-label">
             {jobseeker
               ? "Jobseeker"
-              : user.role === "recruiter"
-                ? "Recruiter"
-                : "Company account"}
+              : "Company account"}
           </span>
           <h2>{user.name || "Your name"}</h2>
           <div>
@@ -251,7 +249,7 @@ export const Profile = () => {
                   </div>
                   <p className="pp-bio">
                     {user.profile?.bio ||
-                      "Introduce yourself, the work you enjoy, and the experience you bring. A short summary helps recruiters get to know you."}
+                      "Introduce yourself, the work you enjoy, and the experience you bring. A short summary helps companies get to know you."}
                   </p>
                   <div className="pp-overview-details">
                     <div>

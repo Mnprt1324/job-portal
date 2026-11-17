@@ -9,7 +9,6 @@ import {
   EyeOff,
   LoaderCircle,
   BriefcaseBusiness,
-  Users,
   Building2,
   AlertCircle,
 } from "lucide-react";
@@ -21,7 +20,6 @@ import { toast } from "react-toastify";
 
 const roles = [
   ["jobseeker", "Jobseeker", BriefcaseBusiness],
-  ["recruiter", "Recruiter", Users],
   ["company", "Company", Building2],
 ];
 
@@ -65,15 +63,12 @@ export const AuthForm = ({ signup = false }) => {
         toast.success("Account created. Sign in to get started.");
         navigate("/login");
       } else {
+        if (!["company","jobseeker","admin"].includes(response.data.user?.role)) {setServerError("This account type is no longer supported.");return;}
         localStorage.setItem("token", `Bearer ${response.data.token}`);
         dispatch(setUser(response.data.user));
         const role = response.data.user.role;
         navigate(
-          role === "recruiter"
-            ? "/dashboard"
-            : role === "company"
-              ? "/company/dashboard"
-              : "/jobseeker/dashboard",
+          role === "admin" ? "/admin/dashboard" : role === "company" ? "/company/dashboard" : "/jobseeker/dashboard",
           { replace: true },
         );
       }

@@ -18,9 +18,12 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["jobseeker", "recruiter", "company"],
+        enum: ["jobseeker", "company", "admin"],
         required: true
     },
+    isSuspended: { type: Boolean, default: false },
+    resetPasswordTokenHash: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
     companySettings: {
         defaultLocation: { type: String, maxlength: 200, default: '' },
         defaultJobType: { type: String, enum: ['Full-time','Part-time','Contract','Internship','Remote'], default: 'Full-time' },
@@ -51,6 +54,7 @@ const userSchema = new mongoose.Schema({
         appliedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
     },
     otp: {
+        attempts: { type: Number, default: 0 },
         otp: {
             type: String,
             default: null

@@ -13,6 +13,7 @@ export const AppLayout = () => {
       );
     else window.scrollTo(0, 0);
   }, [pathname, hash]);
+  if (user && !["company", "jobseeker", "admin"].includes(user.role)) return <Navigate to="/login" replace />;
   if (user?.role === "jobseeker") {
     const destination =
       pathname.toLowerCase() === "/findjob"

@@ -51,14 +51,14 @@ module.exports.registerCompany = async (req, res) => {
   }
 };
 
-module.exports.getCompanyCreateByrecruiter=async (req,res)=>{
+module.exports.getOwnedCompanies=async (req,res)=>{
 try {
-    const recruiterId=req.user._id;
-    const companies=await companyModel.find({createdByUserId:recruiterId});
+    const companyUserId=req.user._id;
+    const companies=await companyModel.find({createdByUserId:companyUserId});
     if(!companies) return res.status(404).json({message:"Companies not found",success:false});
      return res.status(200).json({companies,message:"fetched scussfully",success:true});
 } catch (error) {
-    console.log("error from :getCompanyCreateByrecruiter",error)
+    console.log("error from :getOwnedCompanies",error)
    return res.status(404).json({message:"server error :getCompanycreatedByrec"})
 }
 }

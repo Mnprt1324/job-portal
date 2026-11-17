@@ -10,7 +10,7 @@ export const CompanyRoute = () => {
   }
 
   if (user.role !== "company") {
-    return <Navigate to="/" />;
+    return <Navigate to={user.role === "jobseeker" ? "/jobseeker/dashboard" : user.role === "admin" ? "/admin/dashboard" : "/login"} replace />;
   }
 
   return <WorkspaceShell company />;

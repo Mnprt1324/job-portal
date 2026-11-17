@@ -214,7 +214,7 @@ export const ContactForm = () => {
                       {[
                         "Account access",
                         "Job applications",
-                        "Recruiter support",
+                        "Company support",
                       ].map((topic) => (
                         <button
                           key={topic}
