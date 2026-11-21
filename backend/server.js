@@ -37,6 +37,10 @@ app.use("/company",companyRoutes)
 app.use("/applications",applicationRoutes)
 app.use("/contactUs",contactRouts)
 app.use("/admin",require('./routes/admin.routes'));
+app.use('/conversations',require('./routes/conversation.routes'));
+app.use('/push',require('./routes/push.routes'));
+app.use('/notifications',require('./routes/notification.routes'));
+require('./socket').initialize(server);
 //Server start
 const PORT=process.env.PORT ||5000;
 module.exports=app;

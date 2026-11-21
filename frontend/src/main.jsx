@@ -5,12 +5,18 @@ import App from "./App.jsx";
 import { Provider } from "react-redux";
 import store, { persistor } from "./redux/store.jsx";
 import { PersistGate } from "redux-persist/integration/react";
+import { MessagingProvider } from './components/messages/MessagingProvider';
+import { SessionExpiryGuard } from './components/auth/SessionExpiryGuard';
+import { registerServiceWorker } from './pwa/registerServiceWorker';
+
+registerServiceWorker();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <App />
+        <SessionExpiryGuard />
+        <MessagingProvider><App /></MessagingProvider>
       </PersistGate>
     </Provider>
   </StrictMode>

@@ -12,6 +12,8 @@ import {
   Infinity as InfinityIcon,
   LayoutDashboard,
   ClipboardList,
+  MessageSquare,
+  Bell,
   Search,
   UserRound,
   ArrowUpRight,
@@ -30,6 +32,10 @@ import { logoutUserApiCall } from "../../API/api";
 import { logoutUser } from "../../redux/authSlice";
 import { useJobseekerApplications } from "../../hooks/useJobseekerApplications";
 import "../jobseeker/Jobseeker.css";
+import {UnreadBadge} from "../messages/UnreadBadge";
+import {NotificationBadge} from "../notifications/NotificationBadge";
+import { PushPermissionPrompt } from "../notifications/PushPermissionPrompt";
+import "../../pages/company/CompanyMessages.css";
 
 export const JobseekerLayout = () => {
   const user = useSelector((store) => store.auth.user);
@@ -55,7 +61,7 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
   const base = admin ? "/admin" : company ? "/company" : "/jobseeker";
   const profilePath = admin ? "/admin/dashboard" : company ? "/company/profile" : "/jobseeker/profile";
   const { pathname } = useLocation();
-  const messagesPage = company && pathname === "/company/messages";
+  const messagesPage = !admin && pathname.endsWith("/messages");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -147,9 +153,9 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
     }
   };
   const initial = (user.name || "J").trim().slice(0, 1).toUpperCase();
-  const companyTitles = {dashboard: "Dashboard", jobs: "Jobs", interviews: "Interviews", profile: "Company profile", account: "Account", settings: "Settings", messages: "Messages"};
+  const companyTitles = {dashboard: "Dashboard", jobs: pathname.includes('/applicants') ? "Applicants" : "Jobs", interviews: "Interviews", profile: "Company profile", account: "Account", settings: "Settings", messages: "Messages", notifications: "Notifications"};
   const adminTitles = {dashboard:"Overview",users:"Users",companies:"Companies",jobs:"Jobs",applications:"Applications",contacts:"Inbox"};
-  const title = admin ? (adminTitles[pathname.split("/")[2]] || "Admin") : company ? (companyTitles[pathname.split("/")[2]] || "Workspace") : pathname.endsWith("/applications")
+  const title = admin ? (adminTitles[pathname.split("/")[2]] || "Admin") : company ? (companyTitles[pathname.split("/")[2]] || "Workspace") : pathname.endsWith("/messages") ? "Messages" : pathname.endsWith("/notifications") ? "Notifications" : pathname.endsWith("/applications")
     ? "My applications"
     : pathname.startsWith("/jobseeker/profile")
       ? "My profile"
@@ -215,6 +221,7 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
               </span>
             )}
           </NavLink>
+          <NavLink to="/jobseeker/messages"><MessageSquare size={19} aria-hidden="true" />Messages<UnreadBadge /></NavLink>
           <NavLink to="/jobseeker/jobs">
             <Search size={19} aria-hidden="true" />
             Find jobs
@@ -225,6 +232,9 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
             My profile
             <ArrowUpRight size={15} className="js-nav-out" aria-hidden="true" />
           </NavLink>
+          <div className="js-nav-utility">
+            <NavLink to="/jobseeker/notifications"><Bell size={19} aria-hidden="true" />Notifications<NotificationBadge /></NavLink>
+          </div>
         </nav>}
       </aside>
       <div className={`js-workspace-body ${messagesPage ? "js-messages-workspace" : ""}`} inert={menuOpen}>
@@ -270,6 +280,7 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
           </div>
         </header>
         <main id="jobseeker-main" className="js-main" tabIndex={-1}>
+          {!admin && <PushPermissionPrompt />}
           <Outlet context={{ user, ...applications }} />
         </main>
         {!messagesPage && <div className="js-workspace-note">

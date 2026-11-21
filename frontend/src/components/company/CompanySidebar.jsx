@@ -1,3 +1,5 @@
+import {UnreadBadge} from "../messages/UnreadBadge";
+import {NotificationBadge} from "../notifications/NotificationBadge";
 import { NavLink } from "react-router-dom";
 import {
   Building2,
@@ -6,6 +8,7 @@ import {
   CalendarCheck,
   Settings,
   MessageSquare,
+  Bell,
 } from "lucide-react";
 
 const navItems = [
@@ -14,6 +17,7 @@ const navItems = [
   { path: "/company/messages", label: "Messages", icon: MessageSquare },
   { path: "/company/interviews", label: "Interviews", icon: CalendarCheck },
   { path: "/company/profile", label: "Company Profile", icon: Building2 },
+  { path: "/company/notifications", label: "Notifications", icon: Bell },
   { path: "/company/settings", label: "Settings", icon: Settings },
 ];
 
@@ -23,7 +27,7 @@ export const CompanySidebar = () => {
       {navItems.map(({ path, label, icon: Icon }) => (
         <NavLink key={path} to={path}>
           <Icon size={19} aria-hidden="true" />
-          {label}
+          {label}{path === "/company/messages" && <UnreadBadge />}{path === "/company/notifications" && <NotificationBadge />}
         </NavLink>
       ))}
     </nav>

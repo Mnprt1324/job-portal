@@ -1,4 +1,5 @@
 import axios from "axios";
+import { isAuthenticationFailure, redirectForExpiredSession } from '../utils/sessionExpiry';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
@@ -15,6 +16,15 @@ api.interceptors.request.use(
   (error) => {
     return Promise.reject(error);
   }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const isLoginRequest = /\/users\/(login|register|password\/)/.test(error.config?.url || '');
+    if (!isLoginRequest && isAuthenticationFailure(error.response?.status)) redirectForExpiredSession();
+    return Promise.reject(error);
+  },
 );
 // "https://job-mortal-1.onrender.com"
 export const registerUserApiCall = (data) => {
@@ -119,6 +129,9 @@ export const deleteJobApiCall = (id) => api.delete(`/job/deleteJob/${id}`, { wit
 export const getCompanySettingsApi = () => api.get('/users/company/settings');
 export const updateCompanySettingsApi = (data) => api.patch('/users/company/settings', data);
 export const changePasswordApi = (data) => api.post('/users/password/change', data);
+export const getPushPublicKeyApi = () => api.get('/push/public-key');
+export const subscribePushApi = (subscription) => api.post('/push/subscribe', { subscription });
+export const unsubscribePushApi = (endpoint) => api.delete('/push/subscribe', { data: { endpoint } });
 export const getAdminOverviewApi = () => api.get('/admin/overview');
 export const getAdminRecordsApi = (resource, params) => api.get(`/admin/${resource}`, {params});
 export const updateAdminRecordApi = (resource,id,data) => api.patch(`/admin/${resource}/${id}`,data);

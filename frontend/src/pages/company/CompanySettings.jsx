@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowUpRight, BriefcaseBusiness, Check, Eye, EyeOff, Loader2, LockKeyhole, Save, UserRound } from "lucide-react";
+import { ArrowUpRight, BellRing, BriefcaseBusiness, Check, Eye, EyeOff, Loader2, LockKeyhole, Save, UserRound } from "lucide-react";
+import { PushNotificationSettings } from "../../components/notifications/PushPermissionPrompt";
 import { changePasswordApi, getCompanySettingsApi, updateCompanySettingsApi } from "../../API/api";
 import { setUser } from "../../redux/authSlice";
 import "./CompanySettings.css";
@@ -11,8 +12,8 @@ const toDraft = (user) => ({name:user.name || "",defaultLocation:user.companySet
 export const CompanySettings = () => {
   const dispatch = useDispatch();
   const [searchParams,setSearchParams] = useSearchParams();
-  const section = ["account","defaults","security"].includes(searchParams.get("section")) ? searchParams.get("section") : "account";
-  const sections = [["account","Account details",UserRound],["defaults","Job-posting defaults",BriefcaseBusiness],["security","Password & security",LockKeyhole]];
+  const section = ["account","defaults","notifications","security"].includes(searchParams.get("section")) ? searchParams.get("section") : "account";
+  const sections = [["account","Account details",UserRound],["defaults","Job-posting defaults",BriefcaseBusiness],["notifications","Notifications",BellRing],["security","Password & security",LockKeyhole]];
   const [account,setAccount] = useState(null);
   const [draft,setDraft] = useState(empty);
   const [initial,setInitial] = useState(empty);
@@ -74,13 +75,14 @@ export const CompanySettings = () => {
       <aside className="cs-settings-nav"><nav aria-label="Settings sections">{sections.map(([value,label,Icon]) => <button type="button" key={value} aria-current={section === value ? "page" : undefined} disabled={saving||changing} onClick={()=>goToSection(value)}><Icon size={17} aria-hidden="true"/>{label}</button>)}</nav><Link className="cs-profile-link" to="/company/profile">Company profile<ArrowUpRight size={15} aria-hidden="true"/></Link></aside>
       <div className="cs-mobile-section cs-field"><label htmlFor="cs-section">Settings section</label><select id="cs-section" value={section} disabled={saving||changing} onChange={event=>goToSection(event.target.value)}>{sections.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></div>
       <div className="cs-content">
-      {section !== "security" &&
+      {section !== "security" && section !== "notifications" &&
       <form onSubmit={save} noValidate aria-busy={saving}><fieldset disabled={saving} className="cs-settings-fields">
         {section === "account" && <section className="cs-panel" id="settings-account"><div className="cs-section-heading"><UserRound size={20} aria-hidden="true"/><div><h2>Account details</h2><p>Your name appears in the workspace. Company details live in your company profile.</p></div></div><div className="cs-fields"><div className="cs-field"><label htmlFor="cs-name">Account name</label><input id="cs-name" name="name" autoComplete="name" value={draft.name} onChange={change} maxLength={100} required aria-invalid={!!nameError} aria-describedby={nameError?"cs-name-error":undefined}/>{nameError&&<p className="cs-error" id="cs-name-error">{nameError}</p>}</div><div className="cs-field"><label htmlFor="cs-email">Sign-in email</label><input id="cs-email" type="email" value={account.email} readOnly aria-describedby="cs-email-hint"/><p id="cs-email-hint" className="cs-hint">Your email is used to sign in to ZipJob.</p></div></div></section>}
         {section === "defaults" && <section className="cs-panel" id="settings-defaults"><div className="cs-section-heading"><BriefcaseBusiness size={20} aria-hidden="true"/><div><h2>Job-posting defaults</h2><p>Pre-fill your next job listing. Existing listings stay as they are.</p></div></div><div className="cs-fields"><div className="cs-field cs-wide"><label htmlFor="cs-location">Default location</label><input id="cs-location" name="defaultLocation" value={draft.defaultLocation} onChange={change} maxLength={200} placeholder="e.g. Kathmandu, Nepal"/></div><div className="cs-field"><label htmlFor="cs-jobType">Default job type</label><select id="cs-jobType" name="defaultJobType" value={draft.defaultJobType} onChange={change}>{["Full-time","Part-time","Contract","Internship","Remote"].map(value=><option key={value}>{value}</option>)}</select></div><div className="cs-field"><label htmlFor="cs-workMode">Default work arrangement</label><select id="cs-workMode" name="defaultWorkMode" value={draft.defaultWorkMode} onChange={change}><option value="">Not specified</option>{["On-site","Hybrid","Remote"].map(value=><option key={value}>{value}</option>)}</select></div></div></section>}
         {saveError&&<p className="cs-error cs-error-banner" role="alert">{saveError}</p>}
         <div className="cs-save-row"><div>{saved?<p className="cs-success" role="status"><Check size={16} aria-hidden="true"/>Settings saved.</p>:<p>{dirty?"You have unsaved changes.":"Your settings are up to date."}</p>}</div><div><button className="btn-secondary" type="button" disabled={!dirty} onClick={()=>{setDraft(old=>section === "account" ? {...old,name:initial.name} : {...initial,name:old.name});setNameError("");setSaveError("");setSaved(false);}}>Discard</button><button className="btn-primary" type="submit" disabled={!dirty}>{saving?<Loader2 size={16} className="animate-spin" aria-hidden="true"/>:<Save size={16} aria-hidden="true"/>}{saving?"Saving...":"Save settings"}</button></div></div>
       </fieldset></form>}
+      {section === "notifications" && <PushNotificationSettings />}
       {section === "security" && <form ref={passwordFormRef} onSubmit={changePassword} className="cs-panel" id="settings-security" noValidate aria-busy={changing}><fieldset disabled={changing} className="cs-settings-fields"><div className="cs-section-heading"><LockKeyhole size={20} aria-hidden="true"/><div><h2>Password & security</h2><p>Use a unique password to protect your company account.</p></div></div><div className="cs-fields">{passwordField("currentPassword","Current password")}{passwordField("newPassword","New password")}{passwordField("confirmPassword","Confirm new password")}</div><div className="cs-password-options"><p className="cs-hint" id="cs-password-hint">8-128 characters, with uppercase, lowercase, a number, and a symbol.</p><button type="button" aria-pressed={showPasswords} onClick={()=>setShowPasswords(old=>!old)}>{showPasswords?<EyeOff size={16} aria-hidden="true"/>:<Eye size={16} aria-hidden="true"/>}{showPasswords?"Hide passwords":"Show passwords"}</button></div>{passwordError&&<p className="cs-error" role="alert">{passwordError}</p>}{passwordSaved&&<p className="cs-success" role="status"><Check size={16} aria-hidden="true"/>Password updated.</p>}<div className="cs-security-actions"><button className="btn-primary" type="submit">{changing&&<Loader2 size={16} className="animate-spin" aria-hidden="true"/>}{changing?"Updating password...":"Update password"}</button></div></fieldset></form>}
     </div></div>
   </div>;

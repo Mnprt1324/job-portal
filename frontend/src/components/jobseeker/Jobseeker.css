@@ -50,7 +50,8 @@
   flex-direction: column;
   gap: 6px;
 }
-.js-sidebar nav > a {
+.js-sidebar nav > a,
+.js-nav-utility > a {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -64,13 +65,20 @@
     background 0.18s,
     color 0.18s;
 }
-.js-sidebar nav > a:hover {
+.js-sidebar nav > a:hover,
+.js-nav-utility > a:hover {
   background: var(--p-bg);
   color: var(--p-ink);
 }
-.js-sidebar nav > a.active {
+.js-sidebar nav > a.active,
+.js-nav-utility > a.active {
   color: var(--p-action);
   background: var(--color-blue-50);
+}
+.js-nav-utility {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
 }
 .js-nav-count {
   margin-left: auto;

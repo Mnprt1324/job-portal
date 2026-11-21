@@ -1,4 +1,5 @@
-﻿import { Link } from "react-router-dom";
+import {MessageApplicationButton} from "../messages/MessageApplicationButton";
+import { Link } from "react-router-dom";
 import { ArrowUpRight, BriefcaseBusiness, MapPin } from "lucide-react";
 import PropTypes from "prop-types";
 import { applicationStatus } from "./dashboardData";
@@ -45,6 +46,7 @@ export const JobseekerApplicationList = ({ applications }) => (
             <span className="js-application-date">Applied {dateLabel}</span>
           </div>
           <span className={`js-status js-status-${status}`}>{status}</span>
+          <MessageApplicationButton applicationId={application._id}/>
           {application.job && (
             <Link
               className="js-application-open"

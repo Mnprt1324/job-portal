@@ -76,6 +76,7 @@ module.exports.update=async(req,res)=>{
     if(resource==='jobs'&&data.deleted!==undefined){data.deletedAt=data.deleted?new Date():null;delete data.deleted;}
     const item=await config.model.findByIdAndUpdate(req.params.id,{$set:data},{new:true,runValidators:true}).select(config.select);
     if(!item)return fail(res,'Record not found.',404);
+    if(resource==='users'&&data.isSuspended===true)require('../socket').disconnectUser(req.params.id);
     return res.json({success:true,message:'Changes saved.'});
   }catch(error){return fail(res,error.code===11000?'This email address is already in use.':error.name==='ValidationError'?'Check the field values and try again.':'Unable to save changes. Please try again.',error.code===11000?409:error.name==='ValidationError'?400:500);}
 };

@@ -1,6 +1,7 @@
 const applicationModel = require("../models/application.model");
 // const ApplicationModel = require("../models/application.model");
 const jobModel = require('../models/job.model');
+const { createAndDeliver } = require('../services/notification.service');
 
 module.exports.applyJob = async (req, res) => {
     try {
@@ -30,6 +31,18 @@ module.exports.applyJob = async (req, res) => {
 
         job.applicants.push(newApplication._id);
         await job.save();
+        // Notification delivery failures must never undo a successfully submitted application.
+        createAndDeliver({
+            recipient: job.postedBy,
+            actor: userId,
+            type: 'application_received',
+            title: 'New application received',
+            body: `A candidate applied for ${job.title}.`,
+            link: `/company/jobs/${job._id}/applicants`,
+            resourceType: 'application',
+            resourceId: newApplication._id,
+            eventKey: `application-created:${newApplication._id}`,
+        }).catch((error) => console.warn('Application notification failed:', error.message));
         return res.status(201).json({ message: "job applied successfully", success: true })
 
     } catch (error) {
@@ -69,7 +82,7 @@ module.exports.getApplicants = async (req, res) => {
             path:'applicants',
             options:{sort:{createdAt:-1}},
             populate:{
-                path:'applicant'
+                path:'applicant', select:'name email profile.resume profile.location'
             }
         });
 
@@ -77,7 +90,11 @@ module.exports.getApplicants = async (req, res) => {
 
     
 
-        return res.status(201).json({ applicants:job.applicants, success: true });
+        return res.status(200).json({
+            applicants:job.applicants,
+            job:{_id:job._id,title:job.title,location:job.location,jobType:job.jobType},
+            success: true
+        });
     } catch (error) {
         console.log("error from :getAppliedJobs", error);
         return res.status(404).json({ message: "server error :getAppliedJobs" });
@@ -94,14 +111,28 @@ module.exports.updateStatus = async (req, res) => {
             return res.status(400).json({ message: "Status is required", success: false });
         }
 
-        const application = await applicationModel.findById(applicationId).populate('job','postedBy');
+        const application = await applicationModel.findById(applicationId).populate('job','postedBy title');
         if (!application) {
             return res.status(404).json({ message: "Application not found.", success: false });
         }
         if (String(application.job?.postedBy) !== String(req.user._id)) return res.status(403).json({success:false,message:'Access denied.'});
 
+        const previousStatus = application.status;
         application.status = status.toLowerCase();
         await application.save(); 
+        if (previousStatus !== application.status) {
+            createAndDeliver({
+                recipient: application.applicant,
+                actor: req.user._id,
+                type: 'application_status_changed',
+                title: 'Application updated',
+                body: `Your application for ${application.job?.title || 'this role'} is now ${application.status}.`,
+                link: '/jobseeker/applications',
+                resourceType: 'application',
+                resourceId: application._id,
+                eventKey: `application-status:${application._id}:${application.status}`,
+            }).catch((error) => console.warn('Application status notification failed:', error.message));
+        }
 
         return res.status(200).json({ message: "Status updated successfully.", success: true });
     } catch (error) {

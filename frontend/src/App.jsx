@@ -1,3 +1,5 @@
+import {CompanyApplicants} from "./pages/company/CompanyApplicants";
+import {JobseekerMessages} from "./pages/jobseeker/JobseekerMessages";
 import { NotFound } from "./pages/NotFound";
 import { AuthLayout } from "./components/layout/AuthLayout";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
@@ -23,6 +25,7 @@ import { Contact } from "./pages/Contact";
 import { CompanyDashboard } from "./pages/company/CompanyDashboard";
 import { CompanySettings } from "./pages/company/CompanySettings";
 import { CompanyMessages } from "./pages/company/CompanyMessages";
+import { NotificationsPage } from "./pages/notifications/NotificationsPage";
 import { AdminLayout } from "./components/layout/AdminLayout";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminRecords } from "./pages/admin/AdminRecords";
@@ -50,17 +53,21 @@ export const App = () => {
             { path: "company", element: <Navigate to="/company/dashboard" replace /> },
             { path: "company/dashboard", element: <CompanyDashboard /> },
             { path: "company/jobs", element: <CompanyJobs /> },
+            { path: "company/jobs/:id/applicants", element: <CompanyApplicants /> },
             { path: "company/interviews", element: <CompanyBlankPage /> },
             { path: "company/profile", element: <CompanyProfile /> },
             { path: "company/account", element: <Navigate to="/company/profile" replace /> },
             { path: "company/settings", element: <CompanySettings /> },
             { path: "company/messages", element: <CompanyMessages /> },
+            { path: "company/notifications", element: <NotificationsPage /> },
           ],
         },
     { path: "/jobseeker", element: <JobseekerLayout />, children: [
       { index: true, element: <Navigate to="/jobseeker/dashboard" replace /> },
       { path: "dashboard", element: <JobseekerDashboard /> },
       { path: "applications", element: <JobseekerApplications /> },
+      { path: "messages", element: <JobseekerMessages /> },
+      { path: "notifications", element: <NotificationsPage /> },
       { path: "jobs", element: <FindJob /> },
       { path: "jobs/:id", element: <div className="js-job-detail-route"><JobApply /></div> },
       { path: "profile", element: <div className="js-profile-route"><Profile /></div> },

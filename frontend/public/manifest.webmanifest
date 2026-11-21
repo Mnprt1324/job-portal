@@ -1,0 +1,18 @@
+{
+  "name": "ZipJob - Find your next role",
+  "short_name": "ZipJob",
+  "description": "Browse opportunities, manage applications, and stay connected with your next role.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#1955d1",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
