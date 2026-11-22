@@ -15,7 +15,7 @@ export function PushPermissionPrompt() {
     if (!canUsePush()) return;
     const current = Notification.permission;
     setPermission(current);
-    setVisible(current === 'default' && sessionStorage.getItem('zipjob-push-prompt-hidden') !== 'true');
+    setVisible(current === 'default' && sessionStorage.getItem('joborbit-push-prompt-hidden') !== 'true');
     if (current === 'granted') saveBrowserPushSubscription().catch(() => {});
   }, []);
 
@@ -33,7 +33,7 @@ export function PushPermissionPrompt() {
         toast.info('Notifications are blocked. You can enable them later from your browser site settings.');
       }
     } catch {
-      toast.error('Notifications were allowed, but ZipJob could not finish setup. Please try again.');
+      toast.error('Notifications were allowed, but JobOrbit could not finish setup. Please try again.');
     } finally {
       setRequesting(false);
     }
@@ -46,7 +46,7 @@ export function PushPermissionPrompt() {
       <BellRing size={20} aria-hidden="true" />
       <div className="push-permission-copy">
         <strong>Stay updated on your opportunities</strong>
-        <p>Allow notifications for applications, interview updates, and new messages—even when ZipJob is closed.</p>
+        <p>Allow notifications for applications, interview updates, and new messages—even when JobOrbit is closed.</p>
       </div>
       <div className="push-permission-actions">
         <button className="btn-primary" type="button" onClick={requestPermission} disabled={requesting}>
@@ -56,7 +56,7 @@ export function PushPermissionPrompt() {
           className="push-permission-dismiss"
           type="button"
           onClick={() => {
-            sessionStorage.setItem('zipjob-push-prompt-hidden', 'true');
+            sessionStorage.setItem('joborbit-push-prompt-hidden', 'true');
             setVisible(false);
           }}
           aria-label="Dismiss notification permission prompt"
@@ -107,7 +107,7 @@ export function PushNotificationSettings() {
   };
 
   const status = {
-    granted: { Icon: ShieldCheck, title: 'Notifications enabled', copy: 'This browser can receive ZipJob updates when the app is closed.' },
+    granted: { Icon: ShieldCheck, title: 'Notifications enabled', copy: 'This browser can receive JobOrbit updates when the app is closed.' },
     denied: { Icon: BellOff, title: 'Notifications blocked', copy: 'Allow notifications in your browser site settings, then return here to manage them.' },
     default: { Icon: BellRing, title: 'Notifications are off', copy: 'Turn them on to hear about new applications, messages, and interview updates.' },
     unsupported: { Icon: BellOff, title: 'Notifications unavailable', copy: 'This browser does not support web push notifications.' },
@@ -144,7 +144,7 @@ export function PushNotificationSettings() {
           <span aria-hidden="true" />
         </button>
       </div>
-      {permission === 'denied' && <p className="push-settings-help">Your browser controls this permission. Open the site settings for ZipJob, allow notifications, and refresh this page.</p>}
+      {permission === 'denied' && <p className="push-settings-help">Your browser controls this permission. Open the site settings for JobOrbit, allow notifications, and refresh this page.</p>}
     </section>
   );
 }

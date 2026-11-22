@@ -1,5 +1,5 @@
-import { FaInfinity } from "react-icons/fa";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { BrandMark } from "./BrandMark";
 import { logoutUserApiCall } from "../../API/api";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
@@ -137,20 +137,16 @@ export const Navbar = () => {
               <NavLink
                 to="/"
                 className="flex items-center gap-3 group shrink-0"
-                aria-label="Zipjob home"
+                aria-label="JobOrbit home"
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-violet-500 rounded-xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative bg-gradient-to-tr from-blue-500 to-violet-500 p-2.5 rounded-xl shadow-lg">
-                    <FaInfinity className="text-white text-lg group-hover:rotate-180 transition-transform duration-700" />
-                  </div>
+                  <BrandMark size={42} className="relative drop-shadow-md transition-transform duration-500 group-hover:rotate-6" />
                 </div>
                 <div className="flex flex-col leading-tight">
                   <span className="text-xl font-extrabold tracking-tight">
-                    <span className="text-gray-900">Zip</span>
-                    <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-                      job
-                    </span>
+                    <span className="text-gray-900">Job</span>
+                    <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">Orbit</span>
                   </span>
                   <span className="text-[10px] font-medium text-gray-400 tracking-[0.2em] uppercase">
                     Find Your Future
@@ -159,7 +155,7 @@ export const Navbar = () => {
               </NavLink>
 
               {/* ── Desktop nav links ───────────────── */}
-              <div className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-gray-50/70 border border-gray-100">
+              <div className="public-nav-links hidden lg:flex items-center gap-1 p-1 rounded-full bg-gray-50/70 border border-gray-100">
                 {navigationItems.map(({ path, label, icon: Icon }) => (
                   <NavLink
                     key={path}
@@ -180,7 +176,7 @@ export const Navbar = () => {
               </div>
 
               {/* ── Desktop auth ─────────────────────── */}
-              <div className="hidden lg:flex items-center gap-3">
+              <div className="nav-auth-actions hidden lg:flex items-center gap-3">
                 {isAuthenticated && <NavLink to={dashboardPath} className="nav-dashboard-button" aria-label="Go to dashboard"><IoHome className="w-[18px] h-[18px]" aria-hidden="true"/><span>Dashboard</span></NavLink>}
                 {isAuthenticated ? (
                   <div className="relative">
@@ -271,13 +267,13 @@ export const Navbar = () => {
                   <>
                     <NavLink
                       to="/login"
-                      className="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors"
+                      className="nav-signin px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors"
                     >
                       Sign in
                     </NavLink>
                     <NavLink
                       to="/register"
-                      className="relative px-5 py-2.5 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-blue-600 to-violet-600 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
+                      className="nav-primary-cta relative px-5 py-2.5 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-blue-600 to-violet-600 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
                     >
                       Get Started
                     </NavLink>

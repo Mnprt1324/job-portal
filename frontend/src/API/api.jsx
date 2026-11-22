@@ -154,6 +154,12 @@ export const UpdateStatusApiCall = (id, status) => {
     withCredentials: true,
   });
 };
+export const scheduleInterviewApi = (applicationId, data) => api.post(`/interviews/application/${applicationId}`, data);
+export const getCompanyInterviewsApi = () => api.get('/interviews/company');
+export const getMyInterviewsApi = () => api.get('/interviews/mine');
+export const getInterviewApi = (id) => api.get(`/interviews/${id}`);
+export const updateInterviewApi = (id, data) => api.patch(`/interviews/${id}`, data);
+export const respondToInterviewApi = (id, data) => api.patch(`/interviews/${id}/respond`, data);
 
 export const fetchOldNewJobs = async (sortOrder, limit) => {
   return api.get(`job/getAllJobs?sortBy=${sortOrder}&limit=${limit}`, {

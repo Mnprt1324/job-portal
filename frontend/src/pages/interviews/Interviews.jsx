@@ -1,0 +1,13 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { CalendarCheck, Clock3, MapPin, Video } from 'lucide-react';
+import { getCompanyInterviewsApi, getMyInterviewsApi } from '../../API/api';
+import './Interviews.css';
+const dateTime = (value) => new Date(value).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+const label = (value) => value?.replaceAll('_', ' ') || 'scheduled';
+export function Interviews({ company = false }) {
+  const [items, setItems] = useState([]), [loading, setLoading] = useState(true), [error, setError] = useState('');
+  const load = () => { setLoading(true); setError(''); (company ? getCompanyInterviewsApi() : getMyInterviewsApi()).then(({ data }) => setItems(data.interviews || [])).catch(() => setError('Unable to load interviews. Please try again.')).finally(() => setLoading(false)); };
+  useEffect(load, [company]); const base = company ? '/company' : '/jobseeker';
+  return <section className="interviews-page" aria-labelledby="interviews-heading"><header><p>{company ? 'Candidate conversations' : 'Your upcoming conversations'}</p><h1 id="interviews-heading">{company ? 'Interviews' : 'My interviews'}</h1><span>{company ? 'Select an interview to review candidate and meeting details.' : 'Select an interview to prepare, respond, or join the meeting.'}</span></header>{error && <div className="interview-alert" role="alert">{error}<button onClick={load}>Try again</button></div>}{loading ? <div className="interview-grid" aria-busy="true">{[1,2,3].map((i) => <div className="interview-skeleton" key={i}/>)}</div> : !items.length ? <div className="interview-empty"><CalendarCheck size={28}/><h2>No interviews scheduled</h2><p>{company ? 'Schedule an interview from an applicant profile when a candidate is ready.' : 'When a company schedules an interview, its details will appear here.'}</p></div> : <div className="interview-grid">{items.map((item) => <Link className="interview-card interview-card-link" key={item._id} to={`${base}/interviews/${item._id}`}><div className="interview-card-head"><span className={`interview-status is-${item.status}`}>{label(item.status)}</span><time>{dateTime(item.scheduledAt)}</time></div><h2>{item.job?.title || 'Role unavailable'}</h2><p className="interview-candidate">{company ? item.applicant?.name || 'Candidate unavailable' : item.scheduledBy?.name || 'Hiring team'}</p><div className="interview-meta"><span><Clock3 size={16}/> {item.durationMinutes} min · {label(item.round)}</span><span>{item.mode === 'online' ? <><Video size={16}/> Online</> : <><MapPin size={16}/> {item.location}</>}</span></div><span className="interview-detail-link">View interview details →</span></Link>)}</div>}</section>;
+}

@@ -9,7 +9,6 @@ import {
 } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Infinity as InfinityIcon,
   LayoutDashboard,
   ClipboardList,
   MessageSquare,
@@ -23,7 +22,9 @@ import {
   CircleHelp,
   ChevronRight,
   ChevronDown,
+  CalendarCheck,
 } from "lucide-react";
+import { BrandMark } from "../ui/BrandMark";
 import PropTypes from "prop-types";
 import { CompanySidebar } from "../company/CompanySidebar";
 import { AdminSidebar } from "../admin/AdminSidebar";
@@ -155,7 +156,7 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
   const initial = (user.name || "J").trim().slice(0, 1).toUpperCase();
   const companyTitles = {dashboard: "Dashboard", jobs: pathname.includes('/applicants') ? "Applicants" : "Jobs", interviews: "Interviews", profile: "Company profile", account: "Account", settings: "Settings", messages: "Messages", notifications: "Notifications"};
   const adminTitles = {dashboard:"Overview",users:"Users",companies:"Companies",jobs:"Jobs",applications:"Applications",contacts:"Inbox"};
-  const title = admin ? (adminTitles[pathname.split("/")[2]] || "Admin") : company ? (companyTitles[pathname.split("/")[2]] || "Workspace") : pathname.endsWith("/messages") ? "Messages" : pathname.endsWith("/notifications") ? "Notifications" : pathname.endsWith("/applications")
+  const title = admin ? (adminTitles[pathname.split("/")[2]] || "Admin") : company ? (companyTitles[pathname.split("/")[2]] || "Workspace") : pathname.endsWith("/messages") ? "Messages" : pathname.endsWith("/notifications") ? "Notifications" : pathname.endsWith("/interviews") ? "My interviews" : pathname.endsWith("/applications")
     ? "My applications"
     : pathname.startsWith("/jobseeker/profile")
       ? "My profile"
@@ -190,9 +191,9 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
         <div className="js-brand-row">
           <Link to={`${base}/dashboard`} className="js-brand">
             <span>
-              <InfinityIcon size={24} aria-hidden="true" />
+              <BrandMark size={24} />
             </span>
-            ZipJob
+            JobOrbit
           </Link>
           <button
             className="js-close-menu"
@@ -222,6 +223,7 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
             )}
           </NavLink>
           <NavLink to="/jobseeker/messages"><MessageSquare size={19} aria-hidden="true" />Messages<UnreadBadge /></NavLink>
+          <NavLink to="/jobseeker/interviews"><CalendarCheck size={19} aria-hidden="true" />My interviews</NavLink>
           <NavLink to="/jobseeker/jobs">
             <Search size={19} aria-hidden="true" />
             Find jobs
@@ -284,7 +286,7 @@ export const WorkspaceShell = ({ company = false, admin = false, applications = 
           <Outlet context={{ user, ...applications }} />
         </main>
         {!messagesPage && <div className="js-workspace-note">
-          {admin ? "ZipJob administration" : company ? "Your team, your next chapter." : "Your career, your direction."}
+          {admin ? "JobOrbit administration" : company ? "Your team, your next chapter." : "Your career, your direction."}
           <Link to="/contact">
             Need help?
             <ArrowUpRight size={13} aria-hidden="true" />

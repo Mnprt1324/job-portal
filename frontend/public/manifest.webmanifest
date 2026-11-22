@@ -1,6 +1,6 @@
 {
-  "name": "ZipJob - Find your next role",
-  "short_name": "ZipJob",
+  "name": "JobOrbit - Find your next role",
+  "short_name": "JobOrbit",
   "description": "Browse opportunities, manage applications, and stay connected with your next role.",
   "start_url": "/",
   "scope": "/",

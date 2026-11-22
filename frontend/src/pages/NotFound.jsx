@@ -6,7 +6,7 @@ import "./NotFound.css";
 export const NotFound = () => {
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = "Page not found | ZipJob";
+    document.title = "Page not found | JobOrbit";
     return () => { document.title = previousTitle; };
   }, []);
 

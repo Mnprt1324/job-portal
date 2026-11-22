@@ -34,6 +34,8 @@ import { AdminCompanyProfile } from "./pages/admin/AdminCompanyProfile";
 import { AdminUserProfile } from "./pages/admin/AdminUserProfile";
 import { AdminApplicationDetails } from "./pages/admin/AdminApplicationDetails";
 import { CompanyBlankPage } from "./pages/company/CompanyBlankPage";
+import { Interviews } from "./pages/interviews/Interviews";
+import { InterviewDetails } from "./pages/interviews/InterviewDetails";
 import { CompanyProfile } from "./components/company/CompanyProfile";
 import { CompanyJobs } from "./components/company/jobs/jobs";
 import { PopularJobs } from "./components/home/PopularJobs";
@@ -62,7 +64,8 @@ export const App = () => {
             { path: "company/dashboard", element: <CompanyDashboard /> },
             { path: "company/jobs", element: <CompanyJobs /> },
             { path: "company/jobs/:id/applicants", element: <CompanyApplicants /> },
-            { path: "company/interviews", element: <CompanyBlankPage /> },
+            { path: "company/interviews", element: <Interviews company /> },
+            { path: "company/interviews/:id", element: <InterviewDetails company /> },
             { path: "company/profile", element: <CompanyProfile /> },
             { path: "company/account", element: <Navigate to="/company/profile" replace /> },
             { path: "company/settings", element: <CompanySettings /> },
@@ -75,6 +78,8 @@ export const App = () => {
       { path: "dashboard", element: <JobseekerDashboard /> },
       { path: "applications", element: <JobseekerApplications /> },
       { path: "messages", element: <JobseekerMessages /> },
+      { path: "interviews", element: <Interviews /> },
+      { path: "interviews/:id", element: <InterviewDetails /> },
       { path: "notifications", element: <NotificationsPage /> },
       { path: "jobs", element: <FindJob /> },
       { path: "jobs/:id", element: <div className="js-job-detail-route"><JobApply /></div> },

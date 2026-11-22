@@ -3,7 +3,6 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowUpRight,
-  Infinity as InfinityIcon,
   Search,
   FileText,
   Send,
@@ -11,6 +10,7 @@ import {
   KeyRound,
   LockKeyhole,
 } from "lucide-react";
+import { BrandMark } from "../ui/BrandMark";
 
 export const AuthLayout = () => {
   const { pathname } = useLocation();
@@ -26,12 +26,12 @@ export const AuthLayout = () => {
       <a href="#auth-main" className="skip-link">
         Skip to form
       </a>
-      <aside className="auth-story" aria-label="About ZipJob">
-        <Link to="/" className="auth-brand" aria-label="ZipJob home">
+      <aside className="auth-story" aria-label="About JobOrbit">
+        <Link to="/" className="auth-brand" aria-label="JobOrbit home">
           <span>
-            <InfinityIcon size={25} aria-hidden="true" />
+            <BrandMark size={25} />
           </span>
-          ZipJob
+          JobOrbit
         </Link>
         <div className="auth-story-content">
           <p className="auth-kicker">A little ambition. A new beginning.</p>
@@ -125,14 +125,14 @@ export const AuthLayout = () => {
             Back to jobs
           </Link>
           <Link to="/" className="auth-mobile-brand">
-            ZipJob
+            JobOrbit
           </Link>
           <span>
             {recovery
               ? "Remember your password?"
               : signup
                 ? "Already a member?"
-                : "New to ZipJob?"}{" "}
+                : "New to JobOrbit?"}{" "}
             <Link to={signup || recovery ? "/login" : "/register"}>
               {signup || recovery ? "Sign in" : "Create an account"}
               <ArrowUpRight size={14} aria-hidden="true" />

@@ -3,10 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowUpRight,
   Search,
-  Briefcase,
   MapPin,
-  ArrowRight,
 } from "lucide-react";
+import heroWorkplace from "../../assets/hero/zipjob-workplace.png";
 export const ImgSection = () => {
   const [keyword, setKeyword] = useState("");
   const navigate = useNavigate();
@@ -16,21 +15,18 @@ export const ImgSection = () => {
   };
   return (
     <section className="career-hero" data-enter>
-      <div className="page-container">
-        <div className="hero-label">
-          <span className="label-line" />
-          Work is a big part of life. Make it a good one.
-        </div>
-        <h1>
-          Find work.
-          <br />
-          <span>Make your next move.</span>
-        </h1>
-        <p className="hero-description">
-          A fresh start. A bigger challenge. A role that feels like you.
-          <br className="desktop-break" /> Find your next opportunity with
-          ZipJob.
-        </p>
+      <div className="hero-sky" aria-hidden="true">
+        <span className="hero-cloud hero-cloud-one" />
+        <span className="hero-cloud hero-cloud-two" />
+        <span className="hero-cloud hero-cloud-three" />
+        <span className="hero-cloud hero-cloud-four" />
+        <span className="hero-cloud hero-cloud-five" />
+      </div>
+      <div className="page-container career-hero-layout">
+        <div className="career-hero-copy">
+          <div className="hero-label"><span className="label-line" />JobOrbit careers</div>
+          <h1>Find exciting <span>jobs</span><br />today.</h1>
+          <p className="hero-description">Discover work that fits your strengths, goals, and the life you want to build next.</p>
         <form className="hero-search" onSubmit={search} role="search">
           <label htmlFor="home-keyword">
             <Search size={21} aria-hidden="true" />
@@ -43,11 +39,11 @@ export const ImgSection = () => {
             placeholder="Job title, skill, or location"
           />
           <button className="btn-primary" type="submit">
-            Search jobs <ArrowUpRight size={19} />
+            Explore jobs <ArrowUpRight size={19} />
           </button>
         </form>
         <div className="popular-searches">
-          <span>Try a search</span>
+          <span>Popular searches</span>
           {["Frontend Developer", "Design", "Remote"].map((term) => (
             <Link
               key={term}
@@ -58,54 +54,22 @@ export const ImgSection = () => {
             </Link>
           ))}
         </div>
-        <div
-          className="hero-window app-frame"
-          aria-label="Explore job search options"
-        >
-          <div className="window-bar">
-            <span className="window-brand">ZipJob / Your next move</span>
-            <span className="window-hint">Built around your career</span>
-          </div>
-          <div className="window-body">
-            <div className="window-intro">
-              <span className="eyebrow">A place to begin</span>
-              <h2>
-                What does your <br />
-                next chapter look like?
-              </h2>
-              <Link to="/findJob" className="text-link">
-                Browse opportunities <ArrowRight size={18} />
-              </Link>
-            </div>
-            <div className="window-options">
-              {[
-                [
-                  Briefcase,
-                  "A role to grow into",
-                  "Explore development roles",
-                  "Developer",
-                ],
-                [
-                  MapPin,
-                  "A different place to work",
-                  "Find remote opportunities",
-                  "Remote",
-                ],
-              ].map(([Icon, title, copy, term]) => (
-                <Link
-                  key={term}
-                  to={`/findJob?keyword=${term}`}
-                  className="window-option"
-                >
-                  <Icon size={24} aria-hidden="true" />
-                  <div>
-                    <h3>{title}</h3>
-                    <p>{copy}</p>
-                  </div>
-                  <ArrowUpRight size={20} aria-hidden="true" />
-                </Link>
-              ))}
-            </div>
+        </div>
+        <div className="hero-visual" aria-label="Professionals collaborating in a modern workplace">
+          <img src={heroWorkplace} alt="Two professionals collaborating at a laptop in a bright workplace" />
+          <span className="hero-visual-search"><Search size={18} aria-hidden="true" /></span>
+          <span className="hero-visual-pin"><MapPin size={18} aria-hidden="true" /></span>
+          <div className="hero-visual-caption"><strong>Find a team that moves with you.</strong><span>New roles, better direction.</span></div>
+        </div>
+      </div>
+      <div className="hero-marquee" aria-label="Hiring teams on JobOrbit">
+        <p>Explore opportunities with ambitious teams</p>
+        <span className="sr-only">Companies with roles listed on JobOrbit include NVIDIA, Paytm, Razorpay, Zscaler, Cybage, and Darwinbox.</span>
+        <div className="hero-marquee-viewport" aria-hidden="true">
+          <div className="hero-marquee-track">
+            {["NVIDIA", "Paytm", "Razorpay", "Zscaler", "Cybage", "Darwinbox", "NVIDIA", "Paytm", "Razorpay", "Zscaler", "Cybage", "Darwinbox"].map((company, index) => (
+              <span className="hero-marquee-company" key={`${company}-${index}`}>{company}</span>
+            ))}
           </div>
         </div>
       </div>

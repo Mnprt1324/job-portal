@@ -72,7 +72,7 @@ const copy = {
     Icon: LockKeyhole,
     title: "A fresh start.",
     description:
-      "Create a new password for your ZipJob account. Choose one you have not used before.",
+      "Create a new password for your JobOrbit account. Choose one you have not used before.",
     button: "Save new password",
     pending: "Saving password...",
     step: 3,

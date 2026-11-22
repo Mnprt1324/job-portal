@@ -170,7 +170,7 @@ export const ContactForm = () => {
               <p className="eyebrow">Message sent</p>
               <h2 id="contact-form-title">Thanks for reaching out.</h2>
               <p>
-                Your message has been sent to the ZipJob team. You can continue
+                Your message has been sent to the JobOrbit team. You can continue
                 exploring while you wait for a reply.
               </p>
               <button
@@ -189,7 +189,7 @@ export const ContactForm = () => {
           ) : (
             <>
               <div className="contact-form-heading">
-                <p className="eyebrow">A direct line to ZipJob</p>
+                <p className="eyebrow">A direct line to JobOrbit</p>
                 <h2 id="contact-form-title">Send us a message.</h2>
                 <p>All fields are required. We will use your email to reply.</p>
               </div>

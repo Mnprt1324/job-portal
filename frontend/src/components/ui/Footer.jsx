@@ -1,9 +1,6 @@
 ﻿import { Link } from "react-router-dom";
-import {
-  ArrowUpRight,
-  ArrowRight,
-  Infinity as InfinityIcon,
-} from "lucide-react";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { BrandMark } from "./BrandMark";
 
 const directories = [
   {
@@ -23,7 +20,7 @@ const directories = [
     ],
   },
   {
-    title: "Get to know ZipJob",
+    title: "Get to know JobOrbit",
     links: [
       ["Our story", "/about"],
       ["Contact us", "/contact"],
@@ -47,8 +44,8 @@ export const Footer = () => (
       <div className="footer-directory">
         <div className="footer-brand-column">
           <Link to="/" className="footer-brand">
-            <InfinityIcon size={29} aria-hidden="true" />
-            ZipJob
+            <BrandMark size={29} />
+            JobOrbit
           </Link>
           <p>
             A place for people and teams
@@ -75,7 +72,7 @@ export const Footer = () => (
       </div>
       <div className="footer-bottom">
         <span>
-          Copyright {new Date().getFullYear()} ZipJob. All rights reserved.
+          Copyright {new Date().getFullYear()} JobOrbit. All rights reserved.
         </span>
         <span>Built around your next move.</span>
         <a href="#main-content" className="footer-back-top">

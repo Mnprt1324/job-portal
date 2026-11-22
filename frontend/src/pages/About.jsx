@@ -75,7 +75,7 @@ export const About = () => {
       <section className="about-hero" data-enter>
         <div className="page-container">
           <div className="about-hero-top">
-            <p className="eyebrow">A little about ZipJob</p>
+            <p className="eyebrow">A little about JobOrbit</p>
             <span>People. Possibility. A next step.</span>
           </div>
           <h1>
@@ -90,7 +90,7 @@ export const About = () => {
             <p>
               Behind every application is a person ready for something new.
               Behind every role is a team looking for someone to join them.
-              ZipJob brings those two sides together.
+              JobOrbit brings those two sides together.
             </p>
             <Link className="text-link" to="/findJob">
               Find your next role <ArrowUpRight size={19} aria-hidden="true" />
@@ -115,7 +115,7 @@ export const About = () => {
               The process should feel manageable.
             </p>
             <p>
-              ZipJob puts job discovery, profiles, and applications in one
+              JobOrbit puts job discovery, profiles, and applications in one
               place. Jobseekers can explore their options and keep track of
               their progress. Companies can publish openings and review
               applicants.

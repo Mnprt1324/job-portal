@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zipjob-shell-v1';
+const CACHE_NAME = 'joborbit-shell-v1';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/favicon.svg'];
 
 self.addEventListener('install', (event) => {
@@ -35,12 +35,12 @@ self.addEventListener('push', (event) => {
     payload = { body: event.data?.text() };
   }
 
-  const title = payload.title || 'ZipJob';
+  const title = payload.title || 'JobOrbit';
   const options = {
     body: payload.body || 'You have a new update.',
     icon: '/favicon.svg',
     badge: '/favicon.svg',
-    tag: payload.tag || 'zipjob-update',
+    tag: payload.tag || 'joborbit-update',
     renotify: Boolean(payload.renotify),
     data: { url: payload.url || '/' },
   };

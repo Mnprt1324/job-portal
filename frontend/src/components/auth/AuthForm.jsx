@@ -163,7 +163,7 @@ export const AuthForm = ({ signup = false }) => {
         <p>
           {signup
             ? "A few details, and you are ready to get started."
-            : "Sign in to continue your journey with ZipJob."}
+            : "Sign in to continue your journey with JobOrbit."}
         </p>
       </div>
       <form

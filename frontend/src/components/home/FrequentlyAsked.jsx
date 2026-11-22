@@ -4,7 +4,7 @@ export const FrequentlyAsked = () => {
   const faqs = {
     companies: [
       {
-        question: "How do I post jobs on ZipJob?",
+        question: "How do I post jobs on JobOrbit?",
         answer:
           "You can create a company profile by signing up as a 'Company' and then create a job post under the 'Jobs' dashboard referring to any company you registered.",
       },
