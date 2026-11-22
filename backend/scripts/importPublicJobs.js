@@ -59,7 +59,7 @@ const richHtml = (value = '') => String(value)
   .replace(/&lt;/gi, '<').replace(/&gt;/gi, '>').replace(/&quot;/gi, '"').replace(/&#39;/gi, "'")
   .slice(0, 60000);
 const recruiterEmail = (companyName) => `${slug(companyName)}@mailinator.com`;
-const legacyRecruiterEmail = (companyName) => `talent+${slug(companyName)}@zipjob.example`;
+const legacyRecruiterEmail = (companyName) => `talent+${slug(companyName)}@joborbit.example`;
 const jobType = (value = '') => /part.?time/i.test(value) ? 'Part-time' : /contract/i.test(value) ? 'Contract' : /intern/i.test(value) ? 'Internship' : 'Full-time';
 const workMode = (location = '') => /remote/i.test(location) ? 'Remote' : /hybrid/i.test(location) ? 'Hybrid' : 'On-site';
 const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -68,7 +68,7 @@ async function fetchJson(url, label) {
   let lastError;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(20000), headers: { 'user-agent': 'ZipJob public-job importer' } });
+      const response = await fetch(url, { signal: AbortSignal.timeout(20000), headers: { 'user-agent': 'JobOrbit public-job importer' } });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return response.json();
     } catch (error) {
@@ -85,7 +85,7 @@ async function companyWebsiteMetadata(domain) {
     logo: `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
   };
   try {
-    const response = await fetch(`https://www.${domain}`, { signal: AbortSignal.timeout(8000), headers: { 'user-agent': 'ZipJob public-job importer' } });
+    const response = await fetch(`https://www.${domain}`, { signal: AbortSignal.timeout(8000), headers: { 'user-agent': 'JobOrbit public-job importer' } });
     if (!response.ok) return fallback;
     const html = (await response.text()).slice(0, 300000);
     const description = html.match(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)/i)?.[1];
@@ -187,7 +187,7 @@ async function main() {
 
   // Remove only previously imported records owned by these importer accounts.
   await Job.deleteMany({ postedBy: { $in: recruiters.map((recruiter) => recruiter._id) }, source: { $in: ['Greenhouse', 'Lever'] } });
-  const sampleSeedUsers = await User.find({ email: /^talent\+.*@zipjob\.example$/ }).select('_id');
+  const sampleSeedUsers = await User.find({ email: /^talent\+.*@joborbit\.example$/ }).select('_id');
   await Job.deleteMany({
     postedBy: { $in: sampleSeedUsers.map((user) => user._id) },
     description: /^Seed listing for /,

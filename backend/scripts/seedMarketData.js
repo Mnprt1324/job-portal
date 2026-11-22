@@ -42,7 +42,7 @@ const roles = [
 const slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 const seedEmail = (name) => `${slug(name)}@mailinator.com`;
 const companyDescription = (name, industry, location) =>
-  `${name} is represented in this ZipJob seed dataset as a ${industry.toLowerCase()} employer with a presence in ${location}. Review the company website before relying on this profile for hiring decisions.`;
+  `${name} is represented in this JobOrbit seed dataset as a ${industry.toLowerCase()} employer with a presence in ${location}. Review the company website before relying on this profile for hiring decisions.`;
 
 async function main() {
   if (!process.env.MONGO_URI) throw new Error('MONGO_URI is required.');

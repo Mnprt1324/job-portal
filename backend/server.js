@@ -35,6 +35,7 @@ app.use("/users",userRoutes);
 app.use("/job",jobRoutes);
 app.use("/company",companyRoutes)
 app.use("/applications",applicationRoutes)
+app.use('/interviews',require('./routes/interview.routes'));
 app.use("/contactUs",contactRouts)
 app.use("/admin",require('./routes/admin.routes'));
 app.use('/conversations',require('./routes/conversation.routes'));

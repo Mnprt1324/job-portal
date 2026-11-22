@@ -44,7 +44,7 @@ module.exports.contactUs = async (req, res) => {
             </div>
             <hr style="border: 0; height: 1px; background: #ddd; margin: 15px 0;">
             <p style="font-size: 12px; color: #666; text-align: center;">
-              This message was sent via the contact form on ZipJob.
+              This message was sent via the contact form on JobOrbit.
             </p>
           </div>
         `,

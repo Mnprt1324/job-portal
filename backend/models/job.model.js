@@ -17,7 +17,7 @@ const jobSchema = new mongoose.Schema({
     responsibilities: { type: String, maxlength: 10000 },
     education: { type: String, maxlength: 2000 },
     benefits: { type: String, maxlength: 5000 },
-    source: { type: String, default: 'ZipJob' },
+    source: { type: String, default: 'JobOrbit' },
     sourceUrl: { type: String, maxlength: 2000 },
     externalJobId: { type: String, maxlength: 300 },
     sourceLastSyncedAt: { type: Date },

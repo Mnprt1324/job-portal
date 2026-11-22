@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const controller = require('../controllers/interview.controllers');
+const { authenticate, requireCompany, requireJobseeker } = require('../middleware/auth');
+router.post('/application/:applicationId', authenticate, requireCompany, controller.schedule);
+router.get('/company', authenticate, requireCompany, controller.listCompany);
+router.get('/mine', authenticate, requireJobseeker, controller.listMine);
+router.get('/:id', authenticate, controller.getOne);
+router.patch('/:id', authenticate, requireCompany, controller.update);
+router.patch('/:id/respond', authenticate, requireJobseeker, controller.respond);
+module.exports = router;
