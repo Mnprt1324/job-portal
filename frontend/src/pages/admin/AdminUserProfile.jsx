@@ -2,7 +2,7 @@ import { useEffect,useState } from 'react';
 import { Link,useParams } from 'react-router-dom';
 import { ArrowLeft,ArrowUpRight,BriefcaseBusiness,Check,FileText,Github,Globe,Mail,MapPin,Phone,ShieldCheck,UserRound } from 'lucide-react';
 import { getAdminRecordApi } from '../../API/api';
-import './admin.css';
+import './Admin.css';
 
 const safeUrl=value=>{try{const url=new URL(value);return ['http:','https:'].includes(url.protocol)?url.href:null;}catch{return null;}};
 const roleLabel=role=>role==='jobseeker'?'Jobseeker':role==='company'?'Company account':'Administrator';

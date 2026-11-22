@@ -2,7 +2,7 @@ import { useEffect,useState } from 'react';
 import { Link,useParams } from 'react-router-dom';
 import { ArrowLeft,ArrowUpRight,Building2,Check,Mail,MapPin,Users } from 'lucide-react';
 import { getAdminRecordApi } from '../../API/api';
-import './admin.css';
+import './Admin.css';
 
 const socialLinks=[['linkedin','LinkedIn'],['twitter','X / Twitter'],['instagram','Instagram'],['github','GitHub']];
 const safeUrl=value=>{try{const url=new URL(value);return ['http:','https:'].includes(url.protocol)&&url.hostname.includes('.')?url.href:null;}catch{return null;}};

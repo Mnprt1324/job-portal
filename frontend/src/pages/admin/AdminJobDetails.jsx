@@ -3,7 +3,7 @@ import { Link,useParams } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { ArrowLeft,BriefcaseBusiness,Building2,CalendarDays,Check,FileText,MapPin } from 'lucide-react';
 import { getAdminRecordApi } from '../../API/api';
-import './admin.css';
+import './Admin.css';
 
 const dateLabel=value=>{const date=new Date(value);return value&&!Number.isNaN(date.getTime())?date.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}):'Not specified';};
 const salaryLabel=value=>value!==undefined&&value!==null&&String(value).trim()!==''?(Number.isFinite(Number(value))?Number(value).toLocaleString('en-IN'):String(value)):'Not disclosed';
