@@ -134,6 +134,7 @@ export const subscribePushApi = (subscription) => api.post('/push/subscribe', { 
 export const unsubscribePushApi = (endpoint) => api.delete('/push/subscribe', { data: { endpoint } });
 export const getAdminOverviewApi = () => api.get('/admin/overview');
 export const getAdminRecordsApi = (resource, params) => api.get(`/admin/${resource}`, {params});
+export const getAdminRecordApi = (resource,id) => api.get(`/admin/${resource}/${id}`);
 export const updateAdminRecordApi = (resource,id,data) => api.patch(`/admin/${resource}/${id}`,data);
 
 export const applyJobApiCall = (id, data = {}) => {

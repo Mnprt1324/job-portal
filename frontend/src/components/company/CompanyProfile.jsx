@@ -8,6 +8,22 @@ const socials = [["linkedin", "LinkedIn"], ["twitter", "X / Twitter"], ["instagr
 const hydrate = (company) => Object.fromEntries(Object.keys(defaults).map((key) => [key, company?.[key] ?? ""]));
 const safeLink = (value) => { try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) && url.hostname.includes(".") && !url.username && !url.password ? url.href : null; } catch { return null; } };
 
+const CompanyLogo = ({ src }) => {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => setFailed(false), [src]);
+
+  return (
+    <div className="cp-logo" aria-hidden="true">
+      {src && !failed ? (
+        <img src={src} alt="" onError={() => setFailed(true)} />
+      ) : (
+        <Building2 size={30} />
+      )}
+    </div>
+  );
+};
+
 const CompanyProfileSkeleton = () => (
   <section className="cp-page cp-loading" aria-busy="true" aria-label="Company profile">
     <span className="sr-only" role="status">Loading company profile...</span>
@@ -108,7 +124,7 @@ export const CompanyProfile = () => {
       {editing ? <form ref={formRef} onSubmit={submit} noValidate aria-busy={saving}>
         <fieldset disabled={saving} className="cp-editor">
           <section className="cp-panel"><div className="cp-section-heading"><span>01</span><div><h2>The essentials</h2><p>Introduce your company. Only the company name is required.</p></div></div>
-            <div className="cp-logo-editor"><div className="cp-logo">{preview ? <img src={preview} alt="Company logo preview" /> : <Building2 size={30} aria-hidden="true" />}</div><div><label htmlFor="cp-logo">{preview ? "Change logo" : "Upload company logo"}</label><input id="cp-logo" type="file" accept="image/jpeg,image/png,image/webp" onChange={logoChange} aria-invalid={!!errors.logo} aria-describedby="cp-logo-hint" /><p id="cp-logo-hint">JPG, PNG or WebP. Up to 5 MB.</p>{errors.logo && <p className="cp-error" role="alert">{errors.logo}</p>}</div></div>
+            <div className="cp-logo-editor"><CompanyLogo src={preview} /><div><label htmlFor="cp-logo">{preview ? "Change logo" : "Upload company logo"}</label><input id="cp-logo" type="file" accept="image/jpeg,image/png,image/webp" onChange={logoChange} aria-invalid={!!errors.logo} aria-describedby="cp-logo-hint" /><p id="cp-logo-hint">JPG, PNG or WebP. Up to 5 MB.</p>{errors.logo && <p className="cp-error" role="alert">{errors.logo}</p>}</div></div>
             <div className="cp-fields">{field("companyName","Company name",{maxLength:160,placeholder:"Your company name"})}{field("industry","Industry",{maxLength:100,placeholder:"e.g. Technology, Healthcare"})}{field("tagline","Tagline",{maxLength:160,placeholder:"What you do, in one clear sentence",wide:true})}{field("companySize","Company size",{options:["1-10","11-50","51-200","201-500","501-1000","1001+"]})}{field("foundedYear","Founded in",{type:"number",placeholder:"e.g. 2018"})}{field("location","Headquarters / location",{maxLength:200,placeholder:"City, country or remote"})}{field("website","Website",{type:"url",placeholder:"https://company.com"})}</div>
           </section>
           <section className="cp-panel"><div className="cp-section-heading"><span>02</span><div><h2>Life at your company</h2><p>Share your purpose, people, and working culture.</p></div></div><div className="cp-fields">{field("description","About the company",{multiline:true,wide:true,maxLength:5000,placeholder:"What do you build? Who do you help? Tell your company's story."})}{field("benefits","Culture & benefits",{multiline:true,wide:true,maxLength:3000,placeholder:"How does your team work? What benefits and values do you offer?"})}</div></section>
@@ -117,7 +133,7 @@ export const CompanyProfile = () => {
         {saveError && <p className="cp-save-error" role="alert">{saveError}</p>}
         <div className="cp-form-actions"><p>Use public details you are happy to share.</p><div>{company && <button className="btn-secondary" type="button" disabled={saving} onClick={() => {selectCompany(company);setEditing(false);}}>Cancel</button>}<button className="btn-primary" type="submit" disabled={saving}>{saving ? <Loader2 size={17} className="animate-spin" aria-hidden="true" /> : <Save size={17} aria-hidden="true" />}{saving ? "Saving profile..." : "Save profile"}</button></div></div>
       </form> : <>
-        <section className="cp-panel cp-identity"><div className="cp-logo">{company?.logo ? <img src={company.logo} alt={`${company.companyName} logo`} /> : <Building2 size={30} aria-hidden="true" />}</div><div><p className="cp-kicker">{company?.industry || "Company"}</p><h2>{company?.companyName}</h2>{company?.tagline && <p className="cp-tagline">{company.tagline}</p>}<div className="cp-identity-links">{company?.location && <span>{company.location}</span>}{company?.website && link(company.website,"Visit website")}</div></div></section>
+        <section className="cp-panel cp-identity"><CompanyLogo src={company?.logo} /><div><p className="cp-kicker">{company?.industry || "Company"}</p><h2>{company?.companyName}</h2>{company?.tagline && <p className="cp-tagline">{company.tagline}</p>}<div className="cp-identity-links">{company?.location && <span>{company.location}</span>}{company?.website && link(company.website,"Visit website")}</div></div></section>
         <section className="cp-panel"><h2>About the company</h2><p className="cp-prose">{company?.description || "Tell candidates about your company, your mission, and the people behind it."}</p><dl className="cp-facts">{[["Industry",company?.industry],["Company size",company?.companySize && `${company.companySize} employees`],["Founded",company?.foundedYear],["Location",company?.location]].map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value || "Not added yet"}</dd></div>)}</dl></section>
         <section className="cp-panel"><h2>Culture & benefits</h2><p className="cp-prose">{company?.benefits || "Share what makes your team a good place to work."}</p></section>
         <section className="cp-panel"><h2>Connect with us</h2><div className="cp-social-links">{company?.contactEmail && <a href={`mailto:${company.contactEmail}`}>{company.contactEmail}</a>}{socials.map(([name,label]) => company?.[name] && <span key={name}>{link(company[name],label)}</span>)}</div>{!company?.contactEmail && !socials.some(([name]) => safeLink(company?.[name])) && <p className="cp-prose">Add your public email and social pages so candidates can get to know you.</p>}</section>

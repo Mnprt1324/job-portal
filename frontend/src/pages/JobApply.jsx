@@ -1,5 +1,6 @@
 ﻿import { Link, useOutletContext, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import DOMPurify from "dompurify";
 import { useSelector } from "react-redux";
 import {
   ArrowLeft,
@@ -19,6 +20,13 @@ import { useJobseekerApplications } from "../hooks/useJobseekerApplications";
 import { applyJobApiCall } from "../API/api";
 import "./JobApply.css";
 
+const descriptionPreview = (value, limit = 800) => {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  if (text.length <= limit) return text;
+  const sentenceEnd = text.lastIndexOf(". ", limit);
+  return `${text.slice(0, sentenceEnd > 400 ? sentenceEnd + 1 : limit).trim()}…`;
+};
+
 export const JobApply = () => {
   const { id } = useParams();
   const user = useSelector((store) => store.auth.user);
@@ -33,6 +41,16 @@ export const JobApply = () => {
   const [applying, setApplying] = useState(false);
   const [submitted, setSubmitted] = useState(null);
   const [applyError, setApplyError] = useState(null);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  useEffect(() => setDescriptionExpanded(false), [id]);
+  const fullDescription = job?.description || "A description has not been provided for this role.";
+  const richDescription = useMemo(
+    () => DOMPurify.sanitize(job?.descriptionHtml || `<p>${fullDescription}</p>`, {
+      ALLOWED_TAGS: ["p", "br", "strong", "b", "em", "i", "ul", "ol", "li", "h2", "h3", "h4", "a", "blockquote"],
+      ALLOWED_ATTR: ["href", "target", "rel"],
+    }),
+    [job?.descriptionHtml, fullDescription],
+  );
   const isApplied =
     submitted === id ||
     applications.applications.some(
@@ -142,6 +160,12 @@ export const JobApply = () => {
     /* A missing website is not shown. */
   }
   const jobseeker = user?.role === "jobseeker";
+  const isLongDescription = fullDescription.length > 800;
+  const detailSections = [
+    ["Key responsibilities", job.responsibilities],
+    ["Education & qualifications", job.education],
+    ["Benefits & perks", job.benefits],
+  ].filter(([, value]) => value && value !== job.description);
   const deadline = job.applicationDeadline && /^\d{4}-\d{2}-\d{2}$/.test(job.applicationDeadline) ? new Date(`${job.applicationDeadline}T23:59:59.999Z`) : null;
   const closed = deadline && !Number.isNaN(deadline.getTime()) && Date.now() > deadline.getTime();
   const deadlineLabel = deadline && !Number.isNaN(deadline.getTime()) ? deadline.toLocaleDateString("en-IN", {day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}) : null;
@@ -203,10 +227,16 @@ export const JobApply = () => {
               </span>
               <h2>About this role</h2>
             </div>
-            <p className="jd-description">
-              {job.description ||
-                "A description has not been provided for this role."}
-            </p>
+            {job.descriptionHtml ? (
+              <div className={`jd-rich-description ${descriptionExpanded ? "is-expanded" : ""}`} dangerouslySetInnerHTML={{ __html: richDescription }} />
+            ) : (
+              <p className="jd-description">{descriptionExpanded ? fullDescription : descriptionPreview(fullDescription)}</p>
+            )}
+            {(isLongDescription || job.descriptionHtml?.length > 1200) && (
+              <button className="jd-description-toggle" type="button" onClick={() => setDescriptionExpanded((value) => !value)}>
+                {descriptionExpanded ? "Show less" : "Read full description"}
+              </button>
+            )}
           </section>
           <section className="jd-section">
             <div className="jd-section-heading">
@@ -233,7 +263,7 @@ export const JobApply = () => {
               </p>
             )}
           </section>
-          {[["Key responsibilities",job.responsibilities],["Education & qualifications",job.education],["Benefits & perks",job.benefits]].filter(([,value]) => value).map(([title,value]) => <section className="jd-section" key={title}><div className="jd-section-heading"><span className="jd-section-icon"><FileText size={19} aria-hidden="true" /></span><h2>{title}</h2></div><p className="jd-description">{value}</p></section>)}
+          {detailSections.map(([title,value]) => <section className="jd-section" key={title}><div className="jd-section-heading"><span className="jd-section-icon"><FileText size={19} aria-hidden="true" /></span><h2>{title}</h2></div><p className="jd-description">{value}</p></section>)}
           {company?.description && (
             <section className="jd-section">
               <div className="jd-section-heading">

@@ -29,6 +29,10 @@ import { NotificationsPage } from "./pages/notifications/NotificationsPage";
 import { AdminLayout } from "./components/layout/AdminLayout";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminRecords } from "./pages/admin/AdminRecords";
+import { AdminJobDetails } from "./pages/admin/AdminJobDetails";
+import { AdminCompanyProfile } from "./pages/admin/AdminCompanyProfile";
+import { AdminUserProfile } from "./pages/admin/AdminUserProfile";
+import { AdminApplicationDetails } from "./pages/admin/AdminApplicationDetails";
 import { CompanyBlankPage } from "./pages/company/CompanyBlankPage";
 import { CompanyProfile } from "./components/company/CompanyProfile";
 import { CompanyJobs } from "./components/company/jobs/jobs";
@@ -45,6 +49,10 @@ export const App = () => {
     {path:"/admin",element:<AdminLayout/>,children:[
       {index:true,element:<Navigate to="/admin/dashboard" replace/>},
       {path:"dashboard",element:<AdminDashboard/>},
+      {path:"jobs/:id",element:<AdminJobDetails/>},
+      {path:"companies/:id",element:<AdminCompanyProfile/>},
+      {path:"users/:id",element:<AdminUserProfile/>},
+      {path:"applications/:id",element:<AdminApplicationDetails/>},
       ...['users','companies','jobs','applications','contacts'].map(resource=>({path:resource,element:<AdminRecords key={resource} resource={resource}/>})),
     ]},
         {

@@ -6,10 +6,10 @@ const Application=require('../models/application.model');
 const Contact=require('../models/contact.model');
 const {activityWindow,buildCharts}=require('../utils/adminCharts');
 const resources={
-  users:{model:User,search:['name','email'],select:'name email role isSuspended createdAt profile.location',populate:[]},
+  users:{model:User,search:['name','email'],select:'name email role isSuspended createdAt profile.profileImg profile.bio profile.phone profile.location profile.skills profile.experience profile.website profile.github profile.resume',populate:[]},
   companies:{model:Company,search:['companyName','location','industry'],select:'-__v',populate:[['createdByUserId','name email']]},
-  jobs:{model:Job,search:['title','location','department'],select:'-__v',populate:[['company','companyName'],['postedBy','name email']]},
-  applications:{model:Application,search:[],select:'-__v',populate:[['job','title company deletedAt'],['applicant','name email profile.resume']]},
+  jobs:{model:Job,search:['title','location','department'],select:'-__v',populate:[['company','companyName logo website description'],['postedBy','name email']]},
+  applications:{model:Application,search:[],select:'-__v',populate:[['job','title location jobType department deletedAt company'],['applicant','name email profile.profileImg profile.bio profile.location profile.skills profile.experience profile.website profile.github profile.resume']]},
   contacts:{model:Contact,search:['name','email','subject','message'],select:'-__v',populate:[]},
 };
 const roles=['company','jobseeker','admin'];
@@ -47,6 +47,18 @@ module.exports.list=async(req,res)=>{
     const [items,total]=await Promise.all([request,config.model.countDocuments(query)]);
     return res.json({success:true,items,total,page,totalPages:Math.max(1,Math.ceil(total/limit))});
   }catch{return fail(res,'Unable to load records. Please try again.',500);}
+};
+module.exports.get=async(req,res)=>{
+  const config=Object.hasOwn(resources,req.params.resource)?resources[req.params.resource]:null;
+  if(!config)return fail(res,'Resource not found.',404);
+  if(!mongoose.Types.ObjectId.isValid(req.params.id))return fail(res,'Invalid record ID.');
+  try {
+    let request=config.model.findById(req.params.id).select(config.select);
+    for(const [path,select]of config.populate)request=request.populate(path,select);
+    const item=await request;
+    if(!item)return fail(res,'Record not found.',404);
+    return res.json({success:true,item});
+  }catch{return fail(res,'Unable to load this record.',500);}
 };
 module.exports.update=async(req,res)=>{
   const resource=req.params.resource,config=Object.hasOwn(resources,resource)?resources[resource]:null;if(!config)return fail(res,'Resource not found.',404);
