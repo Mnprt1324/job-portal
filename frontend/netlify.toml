@@ -1,0 +1,11 @@
+# Base directory ("frontend") is set in the Netlify project settings.
+# Paths below are relative to that base directory.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Single-page app fallback so client-side routes (React Router) resolve to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

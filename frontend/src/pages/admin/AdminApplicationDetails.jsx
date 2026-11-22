@@ -2,7 +2,7 @@ import { useEffect,useState } from 'react';
 import { Link,useParams } from 'react-router-dom';
 import { ArrowLeft,ArrowUpRight,BriefcaseBusiness,Check,FileText,Loader2,Mail,MapPin,UserRound } from 'lucide-react';
 import { getAdminRecordApi,updateAdminRecordApi } from '../../API/api';
-import './admin.css';
+import './Admin.css';
 
 const dateLabel=value=>{const date=new Date(value);return value&&!Number.isNaN(date.getTime())?date.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}):'Not specified';};
 const safeUrl=value=>{try{const url=new URL(value);return ['http:','https:'].includes(url.protocol)?url.href:null;}catch{return null;}};
