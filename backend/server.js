@@ -31,6 +31,13 @@ connectToDb();
 app.get("/",(req,res)=>{
 res.send("job portal Backend is running...");
 })
+app.get("/health", (_req, res) => {
+    const databaseConnected = mongoose.connection.readyState === 1;
+    if (!databaseConnected) {
+        return res.status(503).json({ status: "unavailable" });
+    }
+    return res.status(200).json({ status: "ok" });
+});
 app.use("/users",userRoutes);
 app.use("/job",jobRoutes);
 app.use("/company",companyRoutes)
